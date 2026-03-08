@@ -1,4 +1,4 @@
-# Cirq-RAG-Code-Assistant Development Environment Setup Script
+# Braket-RAG-Code-Assistant Development Environment Setup Script
 # For Windows with PyTorch CUDA support
 
 param(
@@ -10,7 +10,7 @@ param(
 # Set error action preference
 $ErrorActionPreference = "Stop"
 
-Write-Host "🚀 Setting up Cirq-RAG-Code-Assistant development environment..." -ForegroundColor Blue
+Write-Host "🚀 Setting up Braket-RAG-Code-Assistant development environment..." -ForegroundColor Blue
 
 # Function to print colored output
 function Write-Status {
@@ -135,12 +135,12 @@ if (-not (Test-Path ".env")) {
     } else {
         Write-Warning "env.template not found, creating basic .env file"
         @"
-# Cirq-RAG-Code-Assistant Environment Configuration
+# Braket-RAG-Code-Assistant Environment Configuration
 DEBUG=true
 ENVIRONMENT=development
 LOG_LEVEL=INFO
-LOG_FILE=outputs/logs/cirq_rag.log
-DATABASE_URL=sqlite:///data/cirq_rag.db
+LOG_FILE=outputs/logs/braket_rag.log
+DATABASE_URL=sqlite:///data/braket_rag.db
 "@ | Out-File -FilePath ".env" -Encoding UTF8
     }
 } else {
@@ -165,7 +165,7 @@ $pytorchTest | python
 if (-not (Test-Path "tests\unit\test_basic.py")) {
     Write-Status "Creating basic test file..."
     $testContent = @'
-"""Basic tests for Cirq-RAG-Code-Assistant."""
+"""Basic tests for Braket-RAG-Code-Assistant."""
 
 import pytest
 import sys
@@ -187,7 +187,7 @@ class TestBasicFunctionality:
         """Test that basic imports work."""
         try:
             import torch
-            import cirq
+            from braket.circuits import Circuit
             import numpy as np
             assert True
         except ImportError as e:
@@ -199,19 +199,15 @@ class TestBasicFunctionality:
         # This test passes whether CUDA is available or not
         assert isinstance(torch.cuda.is_available(), bool)
 
-    def test_cirq_basic(self):
-        """Test basic Cirq functionality."""
-        import cirq
-        
-        # Create a simple circuit
-        qubits = cirq.LineQubit.range(2)
-        circuit = cirq.Circuit()
-        circuit.append(cirq.H(qubits[0]))
-        circuit.append(cirq.CNOT(qubits[0], qubits[1]))
-        
-        # Verify circuit has gates
-        assert len(circuit) == 2
-        assert len(list(circuit.all_qubits())) == 2
+    def test_braket_basic(self):
+        """Test basic Amazon Braket functionality."""
+        from braket.circuits import Circuit
+
+        circuit = Circuit()
+        circuit.h(0)
+        circuit.cnot(0, 1)
+
+        assert len(circuit.instructions) > 0
 
     def test_numpy_basic(self):
         """Test basic NumPy functionality."""

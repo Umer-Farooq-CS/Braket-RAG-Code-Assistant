@@ -1,4 +1,4 @@
-"""Logging configuration for Cirq-RAG-Code-Assistant."""
+"""Logging configuration for Braket-RAG-Code-Assistant."""
 
 import logging
 import sys
@@ -25,7 +25,7 @@ class LoggingConfig:
         
         Args:
             log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-            log_file: Path to log file (default: outputs/logs/cirq_rag.log)
+            log_file: Path to log file (default: outputs/logs/braket_rag.log)
             log_format: Log format (json, text)
             enable_console: Enable console logging
             enable_file: Enable file logging
@@ -33,23 +33,20 @@ class LoggingConfig:
             backup_count: Number of backup files to keep
         """
         self.log_level = log_level.upper()
-        self.log_file = log_file or "outputs/logs/cirq_rag.log"
+        self.log_file = log_file or "outputs/logs/braket_rag.log"
         self.log_format = log_format
         self.enable_console = enable_console
         self.enable_file = enable_file
         self.max_file_size = max_file_size
         self.backup_count = backup_count
         
-        # Ensure log directory exists
         log_path = Path(self.log_file)
         log_path.parent.mkdir(parents=True, exist_ok=True)
     
     def setup_loguru(self) -> None:
         """Setup Loguru logging configuration."""
-        # Remove default handler
         logger.remove()
         
-        # Console handler
         if self.enable_console:
             console_format = (
                 "<green>{time:YYYY-MM-DD HH:mm:ss}</green> | "
@@ -66,7 +63,6 @@ class LoggingConfig:
                 diagnose=True,
             )
         
-        # File handler
         if self.enable_file:
             file_format = (
                 "{time:YYYY-MM-DD HH:mm:ss} | "
@@ -87,7 +83,6 @@ class LoggingConfig:
     
     def setup_structlog(self) -> None:
         """Setup Structlog configuration."""
-        # Configure structlog
         structlog.configure(
             processors=[
                 structlog.stdlib.filter_by_level,
@@ -109,7 +104,6 @@ class LoggingConfig:
     
     def setup_standard_logging(self) -> None:
         """Setup standard Python logging configuration."""
-        # Configure root logger
         logging.basicConfig(
             level=getattr(logging, self.log_level),
             format=(
@@ -122,10 +116,9 @@ class LoggingConfig:
             ],
         )
         
-        # Set specific logger levels
         logging.getLogger("torch").setLevel(logging.WARNING)
         logging.getLogger("transformers").setLevel(logging.WARNING)
-        logging.getLogger("cirq").setLevel(logging.INFO)
+        logging.getLogger("braket").setLevel(logging.INFO)
         logging.getLogger("urllib3").setLevel(logging.WARNING)
     
     def setup_all(self) -> None:
@@ -134,7 +127,6 @@ class LoggingConfig:
         self.setup_structlog()
         self.setup_standard_logging()
         
-        # Log configuration
         logger.info("Logging configuration completed", 
                    log_level=self.log_level,
                    log_file=self.log_file,
@@ -173,12 +165,11 @@ def setup_logging(
     return config
 
 
-# Default logging setup
 def setup_default_logging() -> None:
     """Setup default logging configuration."""
     setup_logging(
         log_level="INFO",
-        log_file="outputs/logs/cirq_rag.log",
+        log_file="outputs/logs/braket_rag.log",
         enable_console=True,
         enable_file=True,
     )

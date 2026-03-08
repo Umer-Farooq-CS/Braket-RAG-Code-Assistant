@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "Cirq-RAG-Code-Assistant",
+    "name": "Braket-RAG-Code-Assistant",
     "version": "0.1.0",
     "debug": false,
     "environment": "development"
@@ -47,7 +47,7 @@
       "use_rag": true,
       "model": {
         "provider": "ollama",
-        "model": "cirq-designer-agent"
+        "model": "braket-designer-agent"
       }
     },
     "optimizer": {
@@ -62,7 +62,7 @@
       "rl_iterations": 10,
       "model": {
         "provider": "ollama",
-        "model": "cirq-optimizer-agent",
+        "model": "braket-optimizer-agent",
         "temperature": 0.2,
         "max_tokens": 2000
       }
@@ -73,10 +73,10 @@
       "validation_level": "comprehensive",
       "llm_enabled": true,
       "default_shots": 1024,
-      "default_backend": "cirq",
+      "default_backend": "braket",
       "model": {
         "provider": "ollama",
-        "model": "cirq-validator-agent"
+        "model": "braket-validator-agent"
       }
     },
     "qcanvas": {
@@ -87,7 +87,7 @@
       "enabled": true,
       "model": {
         "provider": "ollama",
-        "model": "cirq-edu-agent"
+        "model": "braket-edu-agent"
       }
     }
   },
@@ -150,7 +150,7 @@
   },
   "logging": {
     "log_level": "INFO",
-    "log_file": "outputs/logs/cirq_rag.log",
+    "log_file": "outputs/logs/braket_rag.log",
     "log_format": "text",
     "enable_console_logging": true,
     "enable_file_logging": true,

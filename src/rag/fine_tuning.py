@@ -2,13 +2,13 @@
 Fine-Tuning Module
 
 This module implements the pipeline for fine-tuning the LLM and Embedding models
-on Cirq-specific datasets.
+on Braket-specific datasets.
 """
 
 import os
 from typing import Optional, Dict, Any
 from pathlib import Path
-from ..cirq_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.config.logging import get_logger
 
 logger = get_logger(__name__)
 

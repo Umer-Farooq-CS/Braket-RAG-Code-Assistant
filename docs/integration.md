@@ -4,14 +4,14 @@
 
 **Note: This is a future enhancement that will be implemented after the core research project is completed.**
 
-This guide explains how to integrate the Cirq-RAG-Code-Assistant with your existing QCanvas quantum simulator for real-time circuit visualization and execution. This integration is planned as an additional feature to be developed after the main research objectives are achieved.
+This guide explains how to integrate the Braket-RAG-Code-Assistant with your existing QCanvas quantum simulator for real-time circuit visualization and execution. This integration is planned as an additional feature to be developed after the main research objectives are achieved.
 
 ## 🏗️ Integration Architecture
 
 ```mermaid
 graph TD
-    A[User Input] --> B[Cirq-RAG-Code-Assistant]
-    B --> C[Generated Cirq Code]
+    A[User Input] --> B[Braket-RAG-Code-Assistant]
+    B --> C[Generated Braket Code]
     C --> D[QCanvas Integration API]
     D --> E[QCanvas Quantum Simulator]
     E --> F[Circuit Visualization]
@@ -24,10 +24,10 @@ graph TD
 
 ### 1. QCanvas Integration API
 
-The integration layer provides a bridge between the Cirq-RAG-Code-Assistant and QCanvas:
+The integration layer provides a bridge between the Braket-RAG-Code-Assistant and QCanvas:
 
 ```python
-from cirq_rag_code_assistant.integration import QCanvasClient
+from braket_rag_code_assistant.integration import QCanvasClient
 
 class QCanvasIntegration:
     """Integration with QCanvas quantum simulator."""
@@ -35,17 +35,17 @@ class QCanvasIntegration:
     def __init__(self, qcanvas_host: str, qcanvas_port: int):
         self.client = QCanvasClient(host=qcanvas_host, port=qcanvas_port)
     
-    def visualize_circuit(self, cirq_circuit: cirq.Circuit) -> str:
+    def visualize_circuit(self, braket_circuit: Circuit) -> str:
         """Send circuit to QCanvas for visualization."""
-        return self.client.visualize_circuit(cirq_circuit)
+        return self.client.visualize_circuit(braket_circuit)
     
-    def simulate_circuit(self, cirq_circuit: cirq.Circuit) -> dict:
+    def simulate_circuit(self, braket_circuit: Circuit) -> dict:
         """Run simulation on QCanvas."""
-        return self.client.simulate_circuit(cirq_circuit)
+        return self.client.simulate_circuit(braket_circuit)
     
-    def get_circuit_metrics(self, cirq_circuit: cirq.Circuit) -> dict:
+    def get_circuit_metrics(self, braket_circuit: Circuit) -> dict:
         """Get circuit analysis from QCanvas."""
-        return self.client.analyze_circuit(cirq_circuit)
+        return self.client.analyze_circuit(braket_circuit)
 ```
 
 ### 2. Real-time Communication
@@ -81,14 +81,14 @@ class QCanvasWebSocketClient:
 
 ### 1. QCanvas Configuration
 
-Configure QCanvas to accept connections from the Cirq-RAG-Code-Assistant:
+Configure QCanvas to accept connections from the Braket-RAG-Code-Assistant:
 
 ```javascript
 // QCanvas configuration
 const qcanvasConfig = {
     port: 3000,
     cors: {
-        origin: "http://localhost:8000", // Cirq-RAG-Code-Assistant server
+        origin: "http://localhost:8000", // Braket-RAG-Code-Assistant server
         credentials: true
     },
     websocket: {
@@ -109,9 +109,9 @@ QCANVAS_PORT=3000
 QCANVAS_API_KEY=your_qcanvas_api_key
 QCANVAS_WEBSOCKET_URL=ws://localhost:3000/ws
 
-# Cirq-RAG-Code-Assistant
-CIRQ_RAG_HOST=0.0.0.0
-CIRQ_RAG_PORT=8000
+# Braket-RAG-Code-Assistant
+BRAKET_RAG_HOST=0.0.0.0
+BRAKET_RAG_PORT=8000
 ```
 
 ### 3. Installation
@@ -127,12 +127,12 @@ pip install -e ".[qcanvas]"
 ### QCanvas Integration Endpoints
 
 #### POST /api/v1/qcanvas/visualize
-Send a Cirq circuit to QCanvas for visualization.
+Send a Braket circuit to QCanvas for visualization.
 
 **Request:**
 ```json
 {
-    "circuit": "import cirq\nqubits = cirq.LineQubit.range(2)\ncircuit = cirq.Circuit()\ncircuit.append(cirq.H(qubits[0]))\ncircuit.append(cirq.CNOT(qubits[0], qubits[1]))",
+    "circuit": "from braket.circuits import Circuit\nqubits = range(2)\ncircuit = Circuit()\ncircuit.append(circuit.h(qubits[0]))\ncircuit.append(circuit.cnot(qubits[0], qubits[1]))",
     "options": {
         "show_measurements": true,
         "gate_labels": true
@@ -197,8 +197,8 @@ Get circuit analysis metrics from QCanvas.
 ### 1. Code Generation with QCanvas Visualization
 
 ```python
-from cirq_rag_code_assistant import Orchestrator
-from cirq_rag_code_assistant.integration import QCanvasIntegration
+from braket_rag_code_assistant import Orchestrator
+from braket_rag_code_assistant.integration import QCanvasIntegration
 
 # Initialize components
 orchestrator = Orchestrator()
@@ -261,7 +261,7 @@ def test_qcanvas_connection():
     assert qcanvas.client.ping() == "pong"
     
     # Test circuit visualization
-    test_circuit = cirq.Circuit(cirq.H(cirq.LineQubit(0)))
+    test_circuit = Circuit(circuit.h(0))
     result = qcanvas.visualize_circuit(test_circuit)
     assert result["success"] == True
 ```
@@ -344,9 +344,9 @@ Error: Circuit visualization failed
 Enable debug logging for QCanvas integration:
 
 ```bash
-export CIRQ_RAG_DEBUG=true
+export BRAKET_RAG_DEBUG=true
 export QCANVAS_DEBUG=true
-cirq-rag server --log-level debug
+braket-rag server --log-level debug
 ```
 
 ## 📚 Examples
@@ -356,12 +356,12 @@ cirq-rag server --log-level debug
 ```python
 #!/usr/bin/env python3
 """
-Complete example of Cirq-RAG-Code-Assistant with QCanvas integration.
+Complete example of Braket-RAG-Code-Assistant with QCanvas integration.
 """
 
 import asyncio
-from cirq_rag_code_assistant import Orchestrator
-from cirq_rag_code_assistant.integration import QCanvasIntegration
+from braket_rag_code_assistant import Orchestrator
+from braket_rag_code_assistant.integration import QCanvasIntegration
 
 async def main():
     # Initialize components

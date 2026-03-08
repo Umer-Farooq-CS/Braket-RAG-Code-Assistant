@@ -4,7 +4,7 @@ Quick smoke test for the configured Ollama model.
 Usage:
     python scripts/test_ollama_model.py \
         --model qwen2.5-coder:14b-instruct-q4_K_M \
-        --prompt "Write a minimal Cirq Bell state example."
+        --prompt "Write a minimal Amazon Braket Bell state example."
 
 The script:
     1. Pings the Ollama server to verify it is reachable.
@@ -40,7 +40,7 @@ def run_chat(
     payload = {
         "model": model,
         "messages": [
-            {"role": "system", "content": "You are an expert Cirq quantum computing programmer."},
+            {"role": "system", "content": "You are an expert Amazon Braket quantum computing programmer."},
             {"role": "user", "content": prompt},
         ],
         "stream": False,
@@ -63,7 +63,7 @@ def main() -> None:
     )
     parser.add_argument(
         "--prompt",
-        default="Write a minimal Cirq circuit that prepares and measures a Bell state.",
+        default="Write a minimal Amazon Braket circuit that prepares and measures a Bell state.",
         help="Prompt to send to the model.",
     )
     parser.add_argument(
@@ -128,5 +128,3 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
-
-

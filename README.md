@@ -1,19 +1,19 @@
-# Cirq-RAG-Code-Assistant
+# Braket-RAG-Code-Assistant
 
 <div align="center">
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://python.org)
 [![PyTorch](https://img.shields.io/badge/PyTorch-2.1+-orange.svg)](https://pytorch.org)
-[![Cirq](https://img.shields.io/badge/Cirq-1.2+-green.svg)](https://quantumai.google/cirq)
+[![Braket](https://img.shields.io/badge/Braket_SDK-1.50+-green.svg)](https://aws.amazon.com/braket/)
 [![License](https://img.shields.io/badge/License-Academic%20Use-red.svg)](LICENSE)
 
-**A research-grade system for generating, optimizing, explaining, and validating Cirq quantum computing code using hybrid RAG + Multi-Agent architecture with PyTorch CUDA GPU optimization.**
+**A research-grade system for generating, optimizing, explaining, and validating Braket quantum computing code using hybrid RAG + Multi-Agent architecture with PyTorch CUDA GPU optimization.**
 
 </div>
 
 ## 🎯 Overview
 
-The Cirq-RAG-Code-Assistant is a cutting-edge research project that combines **Retrieval-Augmented Generation (RAG)** with **Multi-Agent Systems** to provide intelligent assistance for Google's Cirq quantum computing framework. Our system generates syntactically correct, executable Cirq code from natural language descriptions while providing comprehensive educational explanations.
+The Braket-RAG-Code-Assistant is a cutting-edge research project that combines **Retrieval-Augmented Generation (RAG)** with **Multi-Agent Systems** to provide intelligent assistance for Amazon's Braket quantum computing framework. Our system generates syntactically correct, executable Braket code from natural language descriptions while providing comprehensive educational explanations.
 
 ### 🚀 Key Features
 
@@ -38,7 +38,7 @@ Our system employs four specialized agents working in coordination:
 ### Core Technologies
 - **Python 3.11+** - Primary development language
 - **PyTorch 2.1+** - Deep learning and GPU optimization with CUDA
-- **Cirq 1.2+** - Quantum computing framework
+- **Amazon Braket SDK 1.50+** - Quantum computing framework
 - **Sentence Transformers** - Text embeddings and similarity search
 - **FAISS/ChromaDB** - Vector database for knowledge retrieval
 
@@ -61,7 +61,7 @@ Our system employs four specialized agents working in coordination:
 │
 ├─ data/                                    # Data storage (git-ignored)
 │  ├─ datasets/                            # Training and evaluation datasets
-│  ├─ knowledge_base/                      # Curated Cirq code snippets
+│  ├─ knowledge_base/                      # Curated Braket code snippets
 │  └─ models/                              # Pre-trained models and embeddings
 │
 ├─ docs/                                   # Project documentation
@@ -101,7 +101,7 @@ Our system employs four specialized agents working in coordination:
 │
 ├─ src/                                    # Python source code
 │  ├─ agents/                              # Multi-agent system
-│  ├─ cirq_rag_code_assistant/             # Main package
+│  ├─ braket_rag_code_assistant/             # Main package
 │  │  └─ config/                           # Configuration modules
 │  ├─ cli/                                 # Command-line interface
 │  ├─ evaluation/                          # Evaluation framework
@@ -201,7 +201,7 @@ chmod +x setup-dev.sh
    DEBUG=true
    ENVIRONMENT=development
    LOG_LEVEL=INFO
-   DATABASE_URL=sqlite:///data/cirq_rag.db
+   DATABASE_URL=sqlite:///data/braket_rag.db
    ```
 
 ### 🤖 Ollama Custom Models
@@ -215,10 +215,10 @@ From the project root directory:
 ```bash
 # Create Designer Agent (for code generation)
 cd config/ollama
-ollama create cirq-designer-agent -f designer_agent.Modelfile
+ollama create braket-designer-agent -f designer_agent.Modelfile
 
 # Create Educational Agent (for explanations)
-ollama create cirq-edu-agent -f educational_agent.Modelfile
+ollama create braket-edu-agent -f educational_agent.Modelfile
 
 # Return to project root
 cd ../..
@@ -228,8 +228,8 @@ cd ../..
 
 ```bash
 # Remove a specific agent model
-ollama rm cirq-designer-agent
-ollama rm cirq-edu-agent
+ollama rm braket-designer-agent
+ollama rm braket-edu-agent
 ```
 
 #### List Available Models
@@ -243,10 +243,10 @@ ollama list
 
 ```bash
 # Test Designer Agent (expects JSON output)
-ollama run cirq-designer-agent "Create a simple Bell state circuit"
+ollama run braket-designer-agent "Create a simple Bell state circuit"
 
 # Test Educational Agent (expects markdown output)
-ollama run cirq-edu-agent "Explain what a Hadamard gate does"
+ollama run braket-edu-agent "Explain what a Hadamard gate does"
 ```
 
 #### Modelfile Configuration
@@ -342,10 +342,10 @@ The project includes a `Dockerfile` for containerized deployment:
 
 ```bash
 # Build the Docker image
-docker build -t cirq-rag-code-assistant .
+docker build -t braket-rag-code-assistant .
 
 # Run the container
-docker run -it cirq-rag-code-assistant
+docker run -it braket-rag-code-assistant
 ```
 
 See the `Dockerfile` for details on the containerization setup.
@@ -410,13 +410,13 @@ This project is licensed under the **Academic Use License** - see the [LICENSE](
 
 ## 📞 Support
 
-- **Issues** - [GitHub Issues](https://github.com/Umer-Farooq-CS/Cirq-RAG-Code-Assistant/issues)
+- **Issues** - [GitHub Issues](https://github.com/Umer-Farooq-CS/Braket-RAG-Code-Assistant/issues)
 - **Email** - umerfarooqcs0891@gmail.com
 - **Documentation** - [docs/](docs/) directory
 
 ## 🙏 Acknowledgments
 
-- **Google Cirq Team** - For the excellent quantum computing framework
+- **Amazon Braket Team** - For the excellent quantum computing framework
 - **PyTorch Team** - For GPU optimization capabilities
 - **Open Source Community** - For the tools and libraries that made this possible
 
@@ -426,6 +426,6 @@ This project is licensed under the **Academic Use License** - see the [LICENSE](
 
 **Made with ❤️ for the quantum computing community**
 
-[⭐ Star this repo](https://github.com/Umer-Farooq-CS/Cirq-RAG-Code-Assistant) | [🐛 Report Bug](https://github.com/Umer-Farooq-CS/Cirq-RAG-Code-Assistant/issues) | [💡 Request Feature](https://github.com/Umer-Farooq-CS/Cirq-RAG-Code-Assistant/issues)
+[⭐ Star this repo](https://github.com/Umer-Farooq-CS/Braket-RAG-Code-Assistant) | [🐛 Report Bug](https://github.com/Umer-Farooq-CS/Braket-RAG-Code-Assistant/issues) | [💡 Request Feature](https://github.com/Umer-Farooq-CS/Braket-RAG-Code-Assistant/issues)
 
 </div>

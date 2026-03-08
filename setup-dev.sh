@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# Cirq-RAG-Code-Assistant Development Environment Setup Script
+# Braket-RAG-Code-Assistant Development Environment Setup Script
 # For Linux Ubuntu with PyTorch CUDA support
 
 set -e  # Exit on any error
 
-echo "🚀 Setting up Cirq-RAG-Code-Assistant development environment..."
+echo "🚀 Setting up Braket-RAG-Code-Assistant development environment..."
 
 # Colors for output
 RED='\033[0;31m'
@@ -96,18 +96,18 @@ print_status "Creating initial configuration files..."
 
 # Create .env template
 cat > .env.template << EOF
-# Cirq-RAG-Code-Assistant Environment Configuration
+# Braket-RAG-Code-Assistant Environment Configuration
 
 # API Keys (if needed)
 # OPENAI_API_KEY=your_openai_api_key_here
 # HUGGINGFACE_API_KEY=your_huggingface_api_key_here
 
 # Database Configuration
-DATABASE_URL=sqlite:///data/cirq_rag.db
+DATABASE_URL=sqlite:///data/braket_rag.db
 
 # Logging Configuration
 LOG_LEVEL=INFO
-LOG_FILE=outputs/logs/cirq_rag.log
+LOG_FILE=outputs/logs/braket_rag.log
 
 # PyTorch Configuration
 CUDA_VISIBLE_DEVICES=0
@@ -160,7 +160,7 @@ fi
 
 # Create basic test file
 cat > tests/test_basic.py << 'EOF'
-"""Basic tests for Cirq-RAG-Code-Assistant."""
+"""Basic tests for Braket-RAG-Code-Assistant."""
 
 import pytest
 import sys
@@ -177,7 +177,7 @@ def test_imports():
     """Test that basic imports work."""
     try:
         import torch
-        import cirq
+        from braket.circuits import Circuit
         import numpy as np
         assert True
     except ImportError as e:

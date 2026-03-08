@@ -41,17 +41,14 @@ def test_config():
     }
 
 @pytest.fixture
-def mock_cirq_circuit():
-    """Return a mock Cirq circuit for testing."""
-    import cirq
-    
-    # Create a simple 2-qubit circuit
-    qubits = cirq.LineQubit.range(2)
-    circuit = cirq.Circuit()
-    circuit.append(cirq.H(qubits[0]))
-    circuit.append(cirq.CNOT(qubits[0], qubits[1]))
-    circuit.append(cirq.measure(*qubits, key='result'))
-    
+def mock_braket_circuit():
+    """Return a mock Braket circuit for testing."""
+    from braket.circuits import Circuit
+
+    circuit = Circuit()
+    circuit.h(0)
+    circuit.cnot(0, 1)
+
     return circuit
 
 @pytest.fixture

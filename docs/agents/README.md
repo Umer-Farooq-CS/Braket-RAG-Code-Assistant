@@ -2,7 +2,7 @@
 
 ## 🤖 Multi-Agent Architecture Overview
 
-The Cirq-RAG-Code-Assistant employs a sophisticated multi-agent system with a **sequential pipeline architecture**. Agents process code through defined stages, with conditional validation and optimization steps.
+The Braket-RAG-Code-Assistant employs a sophisticated multi-agent system with a **sequential pipeline architecture**. Agents process code through defined stages, with conditional validation and optimization steps.
 
 ## 🏗️ Agent Architecture
 
@@ -60,8 +60,8 @@ graph TD
 
 **Responsibilities**:
 - Parse natural language descriptions
-- Generate initial Cirq code structure
-- Apply Cirq best practices and patterns
+- Generate initial Braket code structure
+- Apply Braket best practices and patterns
 - Handle algorithm-specific implementations
 - Create modular, reusable code components
 

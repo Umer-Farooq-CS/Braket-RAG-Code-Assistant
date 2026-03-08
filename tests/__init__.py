@@ -1,1 +1,1 @@
-"""Test package for Cirq-RAG-Code-Assistant."""
+"""Test package for Braket-RAG-Code-Assistant."""

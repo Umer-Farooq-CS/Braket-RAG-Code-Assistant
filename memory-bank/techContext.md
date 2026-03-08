@@ -2,7 +2,7 @@
 
 ## Languages & Frameworks
 - Python 3.11+
-- Cirq (quantum computing)
+- Braket (quantum computing)
 - PyTorch 2.1+ (primary ML framework)
 - PyTorch CUDA for GPU optimization
 - Sentence Transformers for embeddings

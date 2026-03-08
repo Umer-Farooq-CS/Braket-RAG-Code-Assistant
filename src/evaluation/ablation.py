@@ -15,7 +15,7 @@ from ..agents.educational import EducationalAgent
 from ..rag.retriever import Retriever
 from ..rag.generator import Generator
 from ..rag.knowledge_base import KnowledgeBase
-from ..cirq_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.config.logging import get_logger
 
 logger = get_logger(__name__)
 

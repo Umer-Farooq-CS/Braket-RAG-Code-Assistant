@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Cirq-RAG-Code-Assistant uses a JSON-based configuration system located in the `config/` folder in the root directory. All configuration is centralized in JSON files and can be accessed by any Python file or notebook.
+The Braket-RAG-Code-Assistant uses a JSON-based configuration system located in the `config/` folder in the root directory. All configuration is centralized in JSON files and can be accessed by any Python file or notebook.
 
 ## Configuration Files
 
@@ -22,7 +22,7 @@ All configuration files are located in the `config/` folder:
 from config import get_config, get_config_loader
 
 # Option 2: Import from src package (which imports from config folder)
-from src.cirq_rag_code_assistant.config import get_config, get_config_loader
+from src.braket_rag_code_assistant.config import get_config, get_config_loader
 
 # Get configuration dictionary
 config = get_config()

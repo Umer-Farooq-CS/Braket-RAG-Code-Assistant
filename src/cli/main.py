@@ -13,7 +13,7 @@ from .commands import (
     explain_command,
     benchmark_command,
 )
-from ..cirq_rag_code_assistant.config.logging import setup_default_logging
+from ..braket_rag_code_assistant.config.logging import setup_default_logging
 
 # Setup logging
 setup_default_logging()
@@ -22,7 +22,7 @@ setup_default_logging()
 @click.group()
 @click.version_option(version="0.1.0")
 def cli():
-    """Cirq-RAG-Code-Assistant CLI."""
+    """Braket-RAG-Code-Assistant CLI."""
     pass
 
 
@@ -34,7 +34,7 @@ def cli():
 @click.option("--explain/--no-explain", default=True, help="Generate explanations")
 @click.option("--output", type=click.Path(), help="Output file path")
 def generate(query, algorithm, optimize, validate, explain, output):
-    """Generate Cirq code from natural language query."""
+    """Generate Braket code from natural language query."""
     generate_command(query, algorithm, optimize, validate, explain, output)
 
 
@@ -43,7 +43,7 @@ def generate(query, algorithm, optimize, validate, explain, output):
 @click.option("--level", default="balanced", help="Optimization level (conservative, balanced, aggressive)")
 @click.option("--output", type=click.Path(), help="Output file path")
 def optimize(code_file, level, output):
-    """Optimize a Cirq circuit."""
+    """Optimize a Braket circuit."""
     optimize_command(code_file, level, output)
 
 
@@ -51,7 +51,7 @@ def optimize(code_file, level, output):
 @click.argument("code_file", type=click.Path(exists=True))
 @click.option("--level", default="comprehensive", help="Validation level (basic, comprehensive)")
 def validate(code_file, level):
-    """Validate Cirq code."""
+    """Validate Braket code."""
     validate_command(code_file, level)
 
 

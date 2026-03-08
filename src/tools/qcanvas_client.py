@@ -10,8 +10,8 @@ Email: umerfarooqcs0891@gmail.com
 
 import requests
 from typing import Dict, Any, Optional
-from ..cirq_rag_code_assistant.config import get_config
-from ..cirq_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.config import get_config
+from ..braket_rag_code_assistant.config.logging import get_logger
 
 logger = get_logger(__name__)
 
@@ -21,7 +21,7 @@ class QCanvasClient:
     Client for QCanvas Backend API.
     
     Uses "compile mode" (two-step flow):
-    1. Convert Cirq code to OpenQASM via /api/converter/convert
+    1. Convert Braket code to OpenQASM via /api/converter/convert
     2. Execute QASM via /api/simulator/execute-qsim
     """
     
@@ -35,7 +35,7 @@ class QCanvasClient:
     def convert_to_qasm(
         self, 
         code: str, 
-        framework: str = "cirq",
+        framework: str = "braket",
         style: str = "classic"
     ) -> Dict[str, Any]:
         """
@@ -72,7 +72,7 @@ class QCanvasClient:
     def execute_qasm(
         self, 
         qasm_code: str, 
-        backend: str = "cirq",
+        backend: str = "braket",
         shots: int = 1024
     ) -> Dict[str, Any]:
         """
@@ -122,18 +122,13 @@ class QCanvasClient:
     def validate_and_execute(
         self, 
         code: str, 
-        framework: str = "cirq",
+        framework: str = "braket",
         shots: int = 1024,
-        backend: str = "cirq"
+        backend: str = "braket"
     ) -> Dict[str, Any]:
         """
         Full "compile mode" pipeline: Convert code to QASM then execute.
-        This is the mode the frontend uses successfully.
-        
-        Returns:
-            Dictionary with success, stage, results, qasm_code, error
         """
-        # Step 1: Convert to QASM
         conv_result = self.convert_to_qasm(code, framework=framework)
         
         if not conv_result.get("success"):
@@ -146,7 +141,6 @@ class QCanvasClient:
         
         qasm_code = conv_result.get("qasm_code", "")
         
-        # Step 2: Execute QASM
         sim_result = self.execute_qasm(qasm_code, backend=backend, shots=shots)
         
         return {

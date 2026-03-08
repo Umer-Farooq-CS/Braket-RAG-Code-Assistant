@@ -2,7 +2,7 @@
 Quantum Simulator Tool Module
 
 This module implements the quantum circuit simulator tool for
-executing and testing Cirq circuits.
+executing and testing Braket circuits.
 
 Author: Umer Farooq, Hussain Waseem Syed, Muhammad Irtaza Khan
 Email: umerfarooqcs0891@gmail.com
@@ -15,8 +15,8 @@ Purpose:
     - Validate circuit behavior
 
 Input:
-    - Cirq circuit
-    - Simulation parameters (repetitions, noise model)
+    - Braket circuit
+    - Simulation parameters (shots, noise model)
     - Measurement configuration
 
 Output:
@@ -26,13 +26,13 @@ Output:
     - Simulation report
 
 Dependencies:
-    - Cirq: For circuit simulation
+    - Amazon Braket SDK: For circuit simulation
     - NumPy: For numerical operations
     - PyTorch: For GPU acceleration utilities (optional)
 
 Links to other modules:
     - Used by: ValidatorAgent, OptimizerAgent
-    - Uses: Cirq Simulator, PyTorch (optional)
+    - Uses: Braket LocalSimulator, PyTorch (optional)
     - Part of: Tool suite
 """
 
@@ -41,43 +41,41 @@ from typing import Dict, Any, Optional, List
 import numpy as np
 
 try:
-    import cirq
-    CIRQ_AVAILABLE = True
+    from braket.circuits import Circuit, gates
+    from braket.devices import LocalSimulator
+    BRAKET_AVAILABLE = True
 except ImportError:
-    CIRQ_AVAILABLE = False
+    BRAKET_AVAILABLE = False
 
-from ..cirq_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.config.logging import get_logger
 
 logger = get_logger(__name__)
 
 
 class QuantumSimulator:
     """
-    Simulates quantum circuits using Cirq.
+    Simulates quantum circuits using Amazon Braket.
     
     Provides circuit execution, measurement, and performance profiling
     capabilities for quantum circuit validation and testing.
     """
     
-    def __init__(self, simulator_type: str = "simulator"):
+    def __init__(self, simulator_type: str = "default"):
         """
         Initialize the QuantumSimulator.
         
         Args:
-            simulator_type: Type of simulator ("simulator", "density_matrix", etc.)
+            simulator_type: Type of simulator ("default", "density_matrix")
         """
-        if not CIRQ_AVAILABLE:
-            raise ImportError("Cirq is required for quantum simulation")
+        if not BRAKET_AVAILABLE:
+            raise ImportError("Amazon Braket SDK is required for quantum simulation")
         
         self.simulator_type = simulator_type
         
-        if simulator_type == "simulator":
-            self.simulator = cirq.Simulator()
-        elif simulator_type == "density_matrix":
-            self.simulator = cirq.DensityMatrixSimulator()
+        if simulator_type == "density_matrix":
+            self.device = LocalSimulator("braket_dm_v1")
         else:
-            self.simulator = cirq.Simulator()
-            logger.warning(f"Unknown simulator type {simulator_type}, using default")
+            self.device = LocalSimulator()
         
         logger.info(f"Initialized {simulator_type} simulator")
     
@@ -91,18 +89,18 @@ class QuantumSimulator:
         Simulate a quantum circuit.
         
         Args:
-            circuit: Cirq circuit to simulate
-            repetitions: Number of measurement repetitions
+            circuit: Braket Circuit to simulate
+            repetitions: Number of measurement shots
             noise_model: Optional noise model
             
         Returns:
             Dictionary with simulation results including histogram
         """
-        if not CIRQ_AVAILABLE:
-            raise ImportError("Cirq is required")
+        if not BRAKET_AVAILABLE:
+            raise ImportError("Amazon Braket SDK is required")
         
-        if not isinstance(circuit, cirq.Circuit):
-            raise ValueError("Input must be a Cirq Circuit")
+        if not isinstance(circuit, Circuit):
+            raise ValueError("Input must be a Braket Circuit")
         
         result = {
             "success": False,
@@ -116,39 +114,21 @@ class QuantumSimulator:
         start_time = time.time()
         
         try:
-            # Apply noise if provided
-            if noise_model:
-                circuit = cirq.Circuit(noise_model.noisy_moments(circuit.moments, circuit.all_qubits()))
-            
-            # Run simulation
             if repetitions > 0:
-                # Run with measurements
-                cirq_result = self.simulator.run(circuit, repetitions=repetitions)
-                result["measurements"] = cirq_result
+                braket_result = self.device.run(circuit, shots=repetitions).result()
+                result["measurements"] = braket_result
                 
-                # Extract histogram from Cirq Result object
-                # Convert to counts dictionary format: {"00": 512, "11": 512, ...}
-                if cirq_result:
-                    histogram = {}
-                    # Get the first measurement key (usually 'm', 'result', etc.)
-                    measurement_keys = list(cirq_result.measurements.keys())
-                    
-                    if measurement_keys:
-                        key = measurement_keys[0]
-                        measurements = cirq_result.measurements[key]
-                        
-                        # Convert each measurement to binary string and count
-                        for measurement in measurements:
-                            # Convert measurement array to binary string (e.g., [0, 1] -> "01")
-                            bitstring = ''.join(str(int(bit)) for bit in measurement)
-                            histogram[bitstring] = histogram.get(bitstring, 0) + 1
-                        
-                        result["histogram"] = histogram
-                        logger.info(f"Simulation completed. Histogram: {histogram}")
+                if braket_result:
+                    counts = braket_result.measurement_counts
+                    histogram = dict(counts)
+                    result["histogram"] = histogram
+                    logger.info(f"Simulation completed. Histogram: {histogram}")
                     
             else:
-                # Get state vector
-                result["state_vector"] = self.simulator.simulate(circuit).final_state_vector
+                sv_device = LocalSimulator("braket_sv_v1")
+                braket_result = sv_device.run(circuit, shots=0).result()
+                state_vector = braket_result.result_types[0].value if braket_result.result_types else None
+                result["state_vector"] = state_vector
             
             result["success"] = True
             result["execution_time"] = time.time() - start_time
@@ -168,8 +148,8 @@ class QuantumSimulator:
         Run circuit and collect measurement results.
         
         Args:
-            circuit: Cirq circuit
-            repetitions: Number of repetitions
+            circuit: Braket Circuit
+            repetitions: Number of shots
             
         Returns:
             Dictionary with measurement results and statistics
@@ -186,19 +166,12 @@ class QuantumSimulator:
             "execution_time": sim_result["execution_time"],
         }
         
-        # Calculate statistics
-        if sim_result["measurements"]:
-            measurements = sim_result["measurements"]
-            
-            # Get measurement keys
-            keys = list(measurements.keys())
-            
-            for key in keys:
-                values = measurements[key]
-                result["statistics"][str(key)] = {
-                    "counts": np.bincount(values),
-                    "unique_values": len(np.unique(values)),
-                }
+        if sim_result["histogram"]:
+            result["statistics"] = {
+                "counts": sim_result["histogram"],
+                "unique_outcomes": len(sim_result["histogram"]),
+                "total_shots": sum(sim_result["histogram"].values()),
+            }
         
         return result
     
@@ -207,7 +180,7 @@ class QuantumSimulator:
         Get the final state vector of a circuit.
         
         Args:
-            circuit: Cirq circuit
+            circuit: Braket Circuit
             
         Returns:
             Dictionary with state vector
@@ -234,8 +207,8 @@ class QuantumSimulator:
         Profile circuit execution performance.
         
         Args:
-            circuit: Cirq circuit
-            repetitions: Number of repetitions for profiling
+            circuit: Braket Circuit
+            repetitions: Number of shots for profiling
             
         Returns:
             Dictionary with performance metrics
@@ -248,14 +221,12 @@ class QuantumSimulator:
         }
         
         try:
-            # Get circuit metrics
             profile_result["circuit_metrics"] = {
-                "num_qubits": len(circuit.all_qubits()),
-                "depth": len(circuit),
-                "num_operations": len(list(circuit.all_operations())),
+                "num_qubits": circuit.qubit_count,
+                "depth": circuit.depth,
+                "num_operations": len(circuit.instructions),
             }
             
-            # Profile execution
             start_time = time.time()
             sim_result = self.simulate(circuit, repetitions=repetitions)
             execution_time = time.time() - start_time

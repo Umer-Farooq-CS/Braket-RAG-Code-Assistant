@@ -1,7 +1,7 @@
 """
 Validator Agent Test Suite
 
-This module contains a test suite of 20+ Cirq code snippets with various categories of errors
+This module contains a test suite of 20+ Braket code snippets with various categories of errors
 (Syntax, Logic, Import, Runtime) derived from the project's Codes.txt examples.
 
 It is designed to be run from the Validator Agent notebook to verify the agent's
@@ -23,13 +23,11 @@ def setup_logging():
     """Configure detailed logging to file using Loguru."""
     log_file = os.path.join(os.path.dirname(__file__), 'test_execution.log')
     
-    # Remove default handlers to avoid duplication if re-run
     try:
         logger.remove()
     except ValueError:
         pass
         
-    # Add file sink for comprehensive debug logging
     logger.add(
         log_file,
         level="DEBUG",
@@ -38,7 +36,6 @@ def setup_logging():
         mode="w"
     )
     
-    # Add stderr sink for visibility during test run (optional)
     logger.add(
         sys.stderr,
         level="INFO",
@@ -55,55 +52,52 @@ TEST_CASES = [
     # --- GROUP 1: QUANTUM TELEPORTATION ---
     {
         "name": "Teleportation - Valid",
-        "description": "Standard Teleportation circuit (Separate appends for backend compatibility)",
+        "description": "Standard Teleportation circuit using Braket SDK",
         "expected_status": "PASS",
         "code": """
-import cirq
-q0, q1, q2 = cirq.LineQubit.range(3)
-circuit = cirq.Circuit()
-circuit.append(cirq.H(q0))
-# Flattened operations for compatibility
-circuit.append(cirq.H(q1))
-circuit.append(cirq.CNOT(q1, q2))
-circuit.append(cirq.CNOT(q0, q1))
-circuit.append(cirq.H(q0))
-circuit.append(cirq.measure(q0, key='c0'))
-circuit.append(cirq.measure(q1, key='c1'))
-# Corrections would happen here in classical control
-circuit.append(cirq.measure(q2, key='c2'))
+from braket.circuits import Circuit
+circuit = Circuit()
+circuit.h(0)
+# Bell pair
+circuit.h(1)
+circuit.cnot(1, 2)
+circuit.cnot(0, 1)
+circuit.h(0)
+# Measurements
+circuit.measure(0)
+circuit.measure(1)
+circuit.measure(2)
 """
     },
     {
         "name": "Teleportation - Missing Import",
-        "description": "Using invalid module to force import error",
+        "description": "Using Circuit without importing it",
         "expected_status": "FAIL",
         "code": """
-# Missing import and using non-existent module
-q0 = cirq.LineQubit(0)
+# Missing import
+circuit = Circuit()
+circuit.h(0)
 """
     },
     {
         "name": "Teleportation - Typo in Module",
-        "description": "Typo 'crique' instead of 'cirq'",
+        "description": "Typo 'Circuite' instead of 'Circuit'",
         "expected_status": "FAIL",
         "code": """
-import cirq
-q0 = cirq.LineQubit(0)
-# Typo below
-circuit = crique.Circuit()
-circuit.append(cirq.H(q0))
+from braket.circuits import Circuit
+circuit = Circuite()
+circuit.h(0)
 """
     },
     {
         "name": "Teleportation - Undefined Variable",
-        "description": "Using q3 which is not defined",
+        "description": "Using undefined variable q3",
         "expected_status": "FAIL",
         "code": """
-import cirq
-q0, q1, q2 = cirq.LineQubit.range(3)
-circuit = cirq.Circuit()
+from braket.circuits import Circuit
+circuit = Circuit()
 # q3 is not defined
-circuit.append(cirq.CNOT(q1, q3)) 
+circuit.cnot(1, q3)
 """
     },
     {
@@ -111,35 +105,31 @@ circuit.append(cirq.CNOT(q1, q3))
         "description": "Missing closing parenthesis",
         "expected_status": "FAIL",
         "code": """
-import cirq
-q0 = cirq.LineQubit(0)
-circuit = cirq.Circuit(
-    cirq.H(q0
-    # Missing closing paren above
+from braket.circuits import Circuit
+circuit = Circuit(
+# Missing closing paren above
 """
     },
 
     # --- GROUP 2: DEUTSCH-JOZSA ---
     {
         "name": "Deutsch-Jozsa - Valid",
-        "description": "Standard DJ circuit for 2 qubits (Simplified)",
+        "description": "Standard DJ circuit for 2 qubits using Braket",
         "expected_status": "PASS",
         "code": """
-import cirq
-q0, q1, q2 = cirq.LineQubit.range(3)
-circuit = cirq.Circuit()
-circuit.append(cirq.X(q2))
-# Explicit loops instead of on_each for safety
-for q in [q0, q1, q2]:
-    circuit.append(cirq.H(q))
+from braket.circuits import Circuit
+circuit = Circuit()
+circuit.x(2)
+for q in [0, 1, 2]:
+    circuit.h(q)
 # Oracle
-circuit.append(cirq.CNOT(q0, q2))
-circuit.append(cirq.CNOT(q1, q2))
+circuit.cnot(0, 2)
+circuit.cnot(1, 2)
 # Final H
-for q in [q0, q1]:
-    circuit.append(cirq.H(q))
-circuit.append(cirq.measure(q0, key='c0'))
-circuit.append(cirq.measure(q1, key='c1'))
+for q in [0, 1]:
+    circuit.h(q)
+circuit.measure(0)
+circuit.measure(1)
 """
     },
     {
@@ -147,34 +137,32 @@ circuit.append(cirq.measure(q1, key='c1'))
         "description": "Python indentation error in loop",
         "expected_status": "FAIL",
         "code": """
-import cirq
-q = cirq.LineQubit.range(3)
-circuit = cirq.Circuit()
+from braket.circuits import Circuit
+circuit = Circuit()
 for i in range(3):
-cirq.H(q[i]) # Indentation Error
+circuit.h(i) # Indentation Error
 """
     },
     {
         "name": "Deutsch-Jozsa - Wrong Gate Usage",
-        "description": "Using parameters for non-parametric gate",
+        "description": "Passing extra argument to H gate",
         "expected_status": "FAIL",
         "code": """
-import cirq
-q0 = cirq.LineQubit(0)
-circuit = cirq.Circuit()
-# H gate does not take arguments like this
-circuit.append(cirq.H(3.14, q0))
+from braket.circuits import Circuit
+circuit = Circuit()
+# H gate takes a single qubit index
+circuit.h(3.14, 0)
 """
     },
     {
         "name": "Deutsch-Jozsa - Logic/Type Error",
-        "description": "Trying to operate on integer instead of qubit",
+        "description": "Passing a string instead of qubit index",
         "expected_status": "FAIL",
         "code": """
-import cirq
-circuit = cirq.Circuit()
-# 0 is int, not qubit
-circuit.append(cirq.H(0))
+from braket.circuits import Circuit
+circuit = Circuit()
+# 'zero' is not a valid qubit index
+circuit.h("zero")
 """
     },
     {
@@ -182,12 +170,10 @@ circuit.append(cirq.H(0))
         "description": "Circuit has no measurements",
         "expected_status": "FAIL",
         "code": """
-import cirq
-q0, q1 = cirq.LineQubit.range(2)
-circuit = cirq.Circuit(
-    cirq.H(q0),
-    cirq.CNOT(q0, q1)
-)
+from braket.circuits import Circuit
+circuit = Circuit()
+circuit.h(0)
+circuit.cnot(0, 1)
 # No measurement
 """
     },
@@ -195,15 +181,14 @@ circuit = cirq.Circuit(
     # --- GROUP 3: QRNG ---
     {
         "name": "QRNG - Valid",
-        "description": "Simple QRNG circuit",
+        "description": "Simple QRNG circuit using Braket",
         "expected_status": "PASS",
         "code": """
-import cirq
-qubits = cirq.LineQubit.range(4)
-circuit = cirq.Circuit()
-for q in qubits:
-    circuit.append(cirq.H(q))
-    circuit.append(cirq.measure(q))
+from braket.circuits import Circuit
+circuit = Circuit()
+for q in range(4):
+    circuit.h(q)
+    circuit.measure(q)
 """
     },
     {
@@ -211,70 +196,68 @@ for q in qubits:
         "description": "Passing string to range",
         "expected_status": "FAIL",
         "code": """
-import cirq
+from braket.circuits import Circuit
 # String instead of int
-qubits = cirq.LineQubit.range("4") 
-circuit = cirq.Circuit()
+for q in range("4"):
+    pass
+circuit = Circuit()
 """
     },
     {
-        "name": "QRNG - Integer Key (Valid)",
-        "description": "Cirq accepts integer keys and auto-converts to string",
+        "name": "QRNG - Valid Measure",
+        "description": "Braket measure on qubit index",
         "expected_status": "PASS",
         "code": """
-import cirq
-q = cirq.LineQubit(0)
-circuit = cirq.Circuit()
-# Cirq accepts int keys
-circuit.append(cirq.measure(q, key=123))
+from braket.circuits import Circuit
+circuit = Circuit()
+circuit.h(0)
+circuit.measure(0)
 """
     },
     {
         "name": "QRNG - Wrong Attribute",
-        "description": "Typo in LineQubit attribute",
+        "description": "Typo in import path",
         "expected_status": "FAIL",
         "code": """
-import cirq
-# Should be LineQubit
-q = cirq.LinearQubit(0)
+# Wrong import path
+from braket.circuitss import Circuit
+circuit = Circuit()
 """
     },
     {
         "name": "QRNG - Logic Error (No Superposition)",
         "description": "Measuring |0> without H gate",
-        "expected_status": "PASS", 
+        "expected_status": "PASS",
         "code": """
-import cirq
-q = cirq.LineQubit(0)
-circuit = cirq.Circuit()
-# Missing H gate
-circuit.append(cirq.measure(q, key='m'))
+from braket.circuits import Circuit
+circuit = Circuit()
+# Missing H gate - will always measure 0
+circuit.measure(0)
 """
     },
 
     # --- GROUP 4: GROVER'S SEARCH ---
     {
         "name": "Grover - Valid",
-        "description": "Simple 2-qubit Grover",
+        "description": "Simple 2-qubit Grover using Braket",
         "expected_status": "PASS",
         "code": """
-import cirq
-q0, q1 = cirq.LineQubit.range(2)
-circuit = cirq.Circuit()
-circuit.append(cirq.H(q0))
-circuit.append(cirq.H(q1))
-circuit.append(cirq.CZ(q0, q1))
-circuit.append(cirq.H(q0))
-circuit.append(cirq.H(q1))
-circuit.append(cirq.X(q0))
-circuit.append(cirq.X(q1))
-circuit.append(cirq.CZ(q0, q1))
-circuit.append(cirq.X(q0))
-circuit.append(cirq.X(q1))
-circuit.append(cirq.H(q0))
-circuit.append(cirq.H(q1))
-circuit.append(cirq.measure(q0, key='c0'))
-circuit.append(cirq.measure(q1, key='c1'))
+from braket.circuits import Circuit
+circuit = Circuit()
+circuit.h(0)
+circuit.h(1)
+circuit.cz(0, 1)
+circuit.h(0)
+circuit.h(1)
+circuit.x(0)
+circuit.x(1)
+circuit.cz(0, 1)
+circuit.x(0)
+circuit.x(1)
+circuit.h(0)
+circuit.h(1)
+circuit.measure(0)
+circuit.measure(1)
 """
     },
     {
@@ -282,11 +265,10 @@ circuit.append(cirq.measure(q1, key='c1'))
         "description": "CZ gate expects 2 qubits",
         "expected_status": "FAIL",
         "code": """
-import cirq
-q0 = cirq.LineQubit(0)
-circuit = cirq.Circuit()
+from braket.circuits import Circuit
+circuit = Circuit()
 # CZ needs 2 args
-circuit.append(cirq.CZ(q0))
+circuit.cz(0)
 """
     },
     {
@@ -294,11 +276,10 @@ circuit.append(cirq.CZ(q0))
         "description": "Using 'qc' instead of 'circuit'",
         "expected_status": "FAIL",
         "code": """
-import cirq
-circuit = cirq.Circuit()
-q0 = cirq.LineQubit(0)
+from braket.circuits import Circuit
+circuit = Circuit()
 # 'qc' is not defined
-qc.append(cirq.H(q0))
+qc.h(0)
 """
     },
     {
@@ -306,23 +287,22 @@ qc.append(cirq.H(q0))
         "description": "Using imaginary gate",
         "expected_status": "FAIL",
         "code": """
-import cirq
-q = cirq.LineQubit(0)
-circuit = cirq.Circuit()
+from braket.circuits import Circuit
+circuit = Circuit()
 # MagicGate doesn't exist
-circuit.append(cirq.MagicGate(q))
+circuit.magic_gate(0)
 """
     },
     {
         "name": "Grover - Invalid Append Type",
-        "description": "Appending a list containing non-operation objects",
+        "description": "Calling non-existent method on Circuit",
         "expected_status": "FAIL",
         "code": """
-import cirq
-q0 = cirq.LineQubit(0)
-circuit = cirq.Circuit()
-# Invalid: Appending a string is not allowed which should raise TypeError
-circuit.append([cirq.H(q0), "not_a_gate"])
+from braket.circuits import Circuit
+circuit = Circuit()
+circuit.h(0)
+# Invalid: append is not a Braket Circuit method
+circuit.append("not_a_gate")
 """
     },
 
@@ -359,37 +339,26 @@ def run_tests(validator_agent):
         task = {
             "code": test["code"],
             "description": test["description"],
-            "force_llm_fix": True # Always try to fix faults
+            "force_llm_fix": True
         }
         
         try:
-            # Run validation
             result = validator_agent.execute(task)
             duration = time.time() - start_time
             
             success = result.get("success", False)
             fixed_code = result.get("fixed_code", None)
             
-            # Determine pass/fail based on expectation
-            # If we expected FAIL, we check if the agent *caught* it (success=False) 
-            # OR if it auto-fixed it and the second run passed.
-            # Actually, ValidatorAgent returns success=False if initial validation fails.
-            # But if it fixes it, it might return fixed_code.
-            
             status = "UNKNOWN"
             if test["expected_status"] == "PASS":
-                # Expecting valid code to pass immediately
                 status = "PASS" if success else "FAIL"
             else:
-                # Expecting invalid code using LLM fix
-                # It "PASSES" the test if the validator detected failure (success=False)
-                # AND suggested a fix (fixed_code is not None)
                 if not success and fixed_code:
                     status = "PASS (Fixed)"
                 elif not success:
-                    status = "PASS (Detected)" # Detected error but maybe no fix
+                    status = "PASS (Detected)"
                 else:
-                    status = "FAIL (False Positive)" # Code passed but should have failed
+                    status = "FAIL (False Positive)"
             
             print(f"-> {status} ({duration:.2f}s)")
             

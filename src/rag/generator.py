@@ -3,16 +3,16 @@ RAG Generator Module
 
 This module implements the generation component of the RAG system.
 It combines retrieved context with LLM capabilities to generate
-Cirq code from natural language descriptions.
+Braket code from natural language descriptions.
 
 Author: Umer Farooq, Hussain Waseem Syed, Muhammad Irtaza Khan
 Email: umerfarooqcs0891@gmail.com
 
 Purpose:
-    - Generate Cirq code from natural language + retrieved context
+    - Generate Braket code from natural language + retrieved context
     - Combine RAG retrieval with LLM generation
     - Apply code templates and best practices
-    - Ensure syntax correctness and Cirq conventions
+    - Ensure syntax correctness and Braket conventions
 
 Input:
     - Natural language description
@@ -21,7 +21,7 @@ Input:
     - Generation parameters (temperature, max_tokens, etc.)
 
 Output:
-    - Generated Cirq code
+    - Generated Braket code
     - Code metadata (algorithm, complexity, imports)
     - Generation confidence scores
     - Explanation of code structure
@@ -30,7 +30,7 @@ Dependencies:
     - Retriever: For context retrieval
     - LLM API (OpenAI/Anthropic): For code generation
     - Code templates: For structured generation
-    - Cirq: For code validation
+    - Braket: For code validation
 
 Links to other modules:
     - Used by: DesignerAgent
@@ -58,24 +58,24 @@ try:
 except ImportError:
     ANTHROPIC_AVAILABLE = False
 
-from ..cirq_rag_code_assistant.config import get_config
-from ..cirq_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.config import get_config
+from ..braket_rag_code_assistant.config.logging import get_logger
 
 logger = get_logger(__name__)
 
 
 class Generator:
     """
-    Generates Cirq code using RAG (Retrieval-Augmented Generation).
+    Generates Braket code using RAG (Retrieval-Augmented Generation).
     
     Combines retrieved context from the knowledge base with LLM capabilities
-    to generate accurate, executable Cirq code.
+    to generate accurate, executable Braket code.
     """
     
     # Code generation prompt template (with RAG context)
-    PROMPT_TEMPLATE = """You are an expert quantum computing programmer specializing in Google's Cirq framework.
+    PROMPT_TEMPLATE = """You are an expert quantum computing programmer specializing in Amazon's Braket framework.
 
-Your task is to generate syntactically correct, executable Cirq code based on the user's request and the provided examples.
+Your task is to generate syntactically correct, executable Braket code based on the user's request and the provided examples.
 
 Context from knowledge base:
 {context}
@@ -83,8 +83,8 @@ Context from knowledge base:
 User request: {query}
 
 Instructions:
-1. Generate complete, executable Cirq code that fulfills the user's request
-2. Follow Cirq best practices and conventions
+1. Generate complete, executable Braket code that fulfills the user's request
+2. Follow Braket best practices and conventions
 3. Include necessary imports
 4. Add comments explaining key steps
 5. Ensure the code is syntactically correct and can be executed
@@ -92,15 +92,15 @@ Instructions:
 Generated code:"""
 
     # Direct prompt template (without RAG context)
-    DIRECT_PROMPT_TEMPLATE = """You are an expert quantum computing programmer specializing in Google's Cirq framework.
+    DIRECT_PROMPT_TEMPLATE = """You are an expert quantum computing programmer specializing in Amazon's Braket framework.
 
-Your task is to generate syntactically correct, executable Cirq code based on the user's request.
+Your task is to generate syntactically correct, executable Braket code based on the user's request.
 
 User request: {query}
 
 Instructions:
-1. Generate complete, executable Cirq code that fulfills the user's request
-2. Follow Cirq best practices and conventions
+1. Generate complete, executable Braket code that fulfills the user's request
+2. Follow Braket best practices and conventions
 3. Include necessary imports
 4. Add comments explaining key steps
 5. Ensure the code is syntactically correct and can be executed
@@ -177,7 +177,7 @@ Generated code:"""
         **kwargs
     ) -> Dict[str, Any]:
         """
-        Generate Cirq code from a natural language query.
+        Generate Braket code from a natural language query.
         
         Args:
             query: Natural language description of desired code
@@ -214,10 +214,9 @@ Generated code:"""
             algorithm_constraints = """
 
 CRITICAL CONSTRAINTS FOR QAOA:
-- NEVER import or use cirq.contrib.qaoa - this module does NOT exist in modern Cirq
-- Build QAOA circuits manually using cirq.ZZ gates for the problem Hamiltonian
-- Use cirq.rx rotations for the mixer Hamiltonian
-- Use np.pi in ZZ exponents for correct phase: cirq.ZZ(qubits[u], qubits[v]) ** (-2 * gamma / np.pi)
+- Build QAOA circuits manually using ZZ gates for the problem Hamiltonian
+- Use Rx rotations for the mixer Hamiltonian
+- Use the Amazon Braket SDK Circuit class with proper gate methods (e.g., Circuit().zz(q0, q1, angle), Circuit().rx(q, angle))
 - Always create a circuit variable that can be executed and measured
 """
         
@@ -239,7 +238,7 @@ CRITICAL CONSTRAINTS FOR QAOA:
                 response = self.client.chat.completions.create(
                     model=self.model,
                     messages=[
-                        {"role": "system", "content": "You are an expert Cirq quantum computing programmer."},
+                        {"role": "system", "content": "You are an expert Amazon Braket quantum computing programmer."},
                         {"role": "user", "content": prompt}
                     ],
                     temperature=self.temperature,
@@ -360,7 +359,7 @@ CRITICAL CONSTRAINTS FOR QAOA:
         
         for line in lines:
             # Start collecting when we see an import
-            if 'import' in line and ('cirq' in line.lower() or 'numpy' in line.lower()):
+            if 'import' in line and ('braket' in line.lower() or 'numpy' in line.lower()):
                 in_code = True
             
             if in_code:
@@ -387,7 +386,7 @@ CRITICAL CONSTRAINTS FOR QAOA:
             "code_length": len(code),
             "num_lines": len(code.split('\n')),
             "has_imports": "import" in code,
-            "has_cirq": "cirq" in code.lower(),
+            "has_braket": "braket" in code.lower(),
         }
         
         # Extract imports
@@ -482,7 +481,7 @@ CRITICAL CONSTRAINTS FOR QAOA:
         **kwargs
     ) -> Dict[str, Any]:
         """
-        Generate Cirq code directly from the LLM without RAG context.
+        Generate Braket code directly from the LLM without RAG context.
         
         This method is useful for comparing RAG-augmented generation with
         direct LLM generation.
@@ -504,7 +503,7 @@ CRITICAL CONSTRAINTS FOR QAOA:
                 response = self.client.chat.completions.create(
                     model=self.model,
                     messages=[
-                        {"role": "system", "content": "You are an expert Cirq quantum computing programmer."},
+                        {"role": "system", "content": "You are an expert Amazon Braket quantum computing programmer."},
                         {"role": "user", "content": prompt}
                     ],
                     temperature=self.temperature,
@@ -528,7 +527,7 @@ CRITICAL CONSTRAINTS FOR QAOA:
                 payload = {
                     "model": self.model,
                     "messages": [
-                        {"role": "system", "content": "You are an expert Cirq quantum computing programmer."},
+                        {"role": "system", "content": "You are an expert Amazon Braket quantum computing programmer."},
                         {"role": "user", "content": prompt},
                     ],
                     "stream": False,

@@ -12,14 +12,20 @@ Email: umerfarooqcs0891@gmail.com
 """
 
 from typing import Dict, Any, Optional, List
-import cirq
+
+try:
+    from braket.circuits import Circuit, gates
+    BRAKET_AVAILABLE = True
+except ImportError:
+    BRAKET_AVAILABLE = False
+
 from .base_agent import BaseAgent
 from ..tools.analyzer import CircuitAnalyzer
-from ..tools.compiler import CirqCompiler
+from ..tools.compiler import BraketCompiler
 from ..rag.generator import Generator
 from ..rag.retriever import Retriever
-from ..cirq_rag_code_assistant.config import get_config
-from ..cirq_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.config import get_config
+from ..braket_rag_code_assistant.config.logging import get_logger
 
 logger = get_logger(__name__)
 
@@ -29,14 +35,14 @@ class OptimizerAgent(BaseAgent):
     Optimizes quantum circuits with RAG-enhanced optimization guidance.
     
     Uses RAG to retrieve reference optimization patterns and apply
-    appropriate Cirq optimizations based on circuit characteristics.
+    appropriate optimizations based on circuit characteristics.
     """
     
     def __init__(
         self,
         retriever: Optional[Retriever] = None,
         analyzer: Optional[CircuitAnalyzer] = None,
-        compiler: Optional[CirqCompiler] = None,
+        compiler: Optional[BraketCompiler] = None,
         generator: Optional[Generator] = None,
     ):
         """
@@ -45,7 +51,7 @@ class OptimizerAgent(BaseAgent):
         Args:
             retriever: Retriever instance for RAG-based optimization guidance (required)
             analyzer: CircuitAnalyzer instance
-            compiler: CirqCompiler instance
+            compiler: BraketCompiler instance
             generator: Generator instance for LLM optimization
         """
         super().__init__(name="OptimizerAgent")
@@ -54,9 +60,8 @@ class OptimizerAgent(BaseAgent):
             logger.warning("OptimizerAgent initialized without retriever - RAG guidance disabled")
         
         self.analyzer = analyzer or CircuitAnalyzer()
-        self.compiler = compiler or CirqCompiler()
+        self.compiler = compiler or BraketCompiler()
         
-        # Initialize generator with optimizer config
         if generator:
             self.generator = generator
         else:
@@ -64,7 +69,7 @@ class OptimizerAgent(BaseAgent):
             opt_config = config.get("agents", {}).get("optimizer", {}).get("model", {})
             
             self.generator = Generator(
-                retriever=retriever,  # Now uses the shared retriever
+                retriever=retriever,
                 model=opt_config.get("model", "qwen2.5-coder:14b-instruct-q4_K_M"),
                 provider=opt_config.get("provider", "ollama"),
                 temperature=opt_config.get("temperature", 0.2),
@@ -73,75 +78,49 @@ class OptimizerAgent(BaseAgent):
         
         logger.info(f"OptimizerAgent initialized (RAG: {'enabled' if retriever else 'disabled'})")
     
-    def _circuit_to_code(self, circuit: cirq.Circuit) -> str:
+    def _circuit_to_code(self, circuit: Circuit) -> str:
         """
-        Convert a Cirq circuit object to executable Python code.
+        Convert a Braket Circuit object to executable Python code.
         
-        CRITICAL: str(circuit) returns ASCII diagram, NOT Python code!
         This method generates actual executable Python code from a circuit.
         """
-        qubits = sorted(circuit.all_qubits(), key=str)
+        lines = ["from braket.circuits import Circuit", ""]
+        lines.append("circuit = Circuit()")
         
-        lines = ["import cirq", ""]
+        gate_method_map = {
+            "H": "h",
+            "X": "x",
+            "Y": "y",
+            "Z": "z",
+            "S": "s",
+            "T": "t",
+            "CNot": "cnot",
+            "CZ": "cz",
+            "Swap": "swap",
+            "CCNot": "ccnot",
+            "Rx": "rx",
+            "Ry": "ry",
+            "Rz": "rz",
+            "Measure": "measure",
+        }
         
-        # Generate qubit declarations
-        if qubits:
-            if all(isinstance(q, cirq.LineQubit) for q in qubits):
-                n_qubits = max(q.x for q in qubits) + 1
-                lines.append(f"qubits = cirq.LineQubit.range({n_qubits})")
-            elif all(isinstance(q, cirq.GridQubit) for q in qubits):
-                for i, q in enumerate(qubits):
-                    lines.append(f"q{i} = cirq.GridQubit({q.row}, {q.col})")
-                lines.append(f"qubits = [{', '.join(f'q{i}' for i in range(len(qubits)))}]")
-            else:
-                for i, q in enumerate(qubits):
-                    lines.append(f"q{i} = cirq.NamedQubit('{q}')")
-                lines.append(f"qubits = [{', '.join(f'q{i}' for i in range(len(qubits)))}]")
-        
-        lines.append("")
-        lines.append("circuit = cirq.Circuit()")
-        
-        qubit_to_name = {q: f"qubits[{i}]" for i, q in enumerate(qubits)}
-        
-        for moment in circuit.moments:
-            for op in moment.operations:
-                gate = op.gate
-                op_qubits = [qubit_to_name[q] for q in op.qubits]
-                
-                if isinstance(gate, cirq.MeasurementGate):
-                    key = gate.key if hasattr(gate, 'key') else 'result'
-                    lines.append(f"circuit.append(cirq.measure({', '.join(op_qubits)}, key='{key}'))")
-                elif isinstance(gate, cirq.HPowGate) and gate.exponent == 1:
-                    lines.append(f"circuit.append(cirq.H({', '.join(op_qubits)}))")
-                elif isinstance(gate, cirq.XPowGate) and gate.exponent == 1:
-                    lines.append(f"circuit.append(cirq.X({', '.join(op_qubits)}))")
-                elif isinstance(gate, cirq.YPowGate) and gate.exponent == 1:
-                    lines.append(f"circuit.append(cirq.Y({', '.join(op_qubits)}))")
-                elif isinstance(gate, cirq.ZPowGate) and gate.exponent == 1:
-                    lines.append(f"circuit.append(cirq.Z({', '.join(op_qubits)}))")
-                elif isinstance(gate, cirq.CNotPowGate) and gate.exponent == 1:
-                    lines.append(f"circuit.append(cirq.CNOT({', '.join(op_qubits)}))")
-                elif isinstance(gate, cirq.CZPowGate) and gate.exponent == 1:
-                    lines.append(f"circuit.append(cirq.CZ({', '.join(op_qubits)}))")
-                elif isinstance(gate, cirq.SwapPowGate) and gate.exponent == 1:
-                    lines.append(f"circuit.append(cirq.SWAP({', '.join(op_qubits)}))")
-                elif isinstance(gate, cirq.PhasedXZGate):
-                    a = getattr(gate, 'axis_phase_exponent', 0)
-                    x = getattr(gate, 'x_exponent', 0)
-                    z = getattr(gate, 'z_exponent', 0)
-                    lines.append(f"circuit.append(cirq.PhasedXZGate(axis_phase_exponent={a}, x_exponent={x}, z_exponent={z}).on({', '.join(op_qubits)}))")
-                elif hasattr(gate, '__class__') and hasattr(gate.__class__, '__name__'):
-                    gate_name = gate.__class__.__name__
-                    if len(op_qubits) == 1:
-                        lines.append(f"circuit.append(cirq.{gate_name}().on({op_qubits[0]}))")
-                    else:
-                        lines.append(f"circuit.append(cirq.{gate_name}().on({', '.join(op_qubits)}))")
+        for inst in circuit.instructions:
+            gate_name = inst.operator.name
+            target_qubits = [q for q in inst.target]
+            
+            method_name = gate_method_map.get(gate_name)
+            
+            if method_name:
+                if hasattr(inst.operator, 'angle'):
+                    angle = inst.operator.angle
+                    qubit_args = ", ".join(str(q) for q in target_qubits)
+                    lines.append(f"circuit.{method_name}({qubit_args}, {angle})")
                 else:
-                    gate_str = repr(gate)
-                    if len(op_qubits) == 1:
-                        lines.append(f"circuit.append({gate_str}.on({op_qubits[0]}))")
-                    else:
-                        lines.append(f"circuit.append({gate_str}.on({', '.join(op_qubits)}))")
+                    qubit_args = ", ".join(str(q) for q in target_qubits)
+                    lines.append(f"circuit.{method_name}({qubit_args})")
+            else:
+                qubit_args = ", ".join(str(q) for q in target_qubits)
+                lines.append(f"# Unsupported gate: {gate_name} on qubits {qubit_args}")
         
         lines.append("")
         lines.append("print(circuit)")
@@ -155,18 +134,10 @@ class OptimizerAgent(BaseAgent):
     ) -> List[Dict[str, Any]]:
         """
         Retrieve optimization references from knowledge base.
-        
-        Args:
-            code: The code to optimize
-            algorithm: Algorithm type if known
-            
-        Returns:
-            List of optimization reference entries
         """
         if not self.retriever:
             return []
         
-        # Build query for optimization patterns
         query_parts = ["optimize", "circuit", "reduce", "depth", "gates"]
         if algorithm:
             query_parts.insert(1, algorithm)
@@ -181,45 +152,25 @@ class OptimizerAgent(BaseAgent):
     
     def _select_optimizations(
         self,
-        circuit: cirq.Circuit,
+        circuit: Circuit,
         references: List[Dict[str, Any]],
         level: str,
     ) -> List[str]:
         """
-        Select which Cirq optimizations to apply based on references and circuit analysis.
+        Select which optimizations to apply based on references and circuit analysis.
         
-        Returns list of optimization function names to apply.
+        Returns list of optimization strategy names.
         """
         optimizations = []
         
-        # Always do single-qubit merge (it's safe and usually beneficial)
-        optimizations.append("merge_single_qubit_gates_to_phxz")
+        optimizations.append("remove_redundant_gates")
         
-        # Check references for suggestions
-        for ref in references:
-            entry = ref.get("entry", {})
-            cirq_opt = entry.get("cirq_optimization", "")
-            
-            if "drop_negligible" in cirq_opt:
-                if "drop_negligible_operations" not in optimizations:
-                    optimizations.append("drop_negligible_operations")
-            if "eject_z" in cirq_opt:
-                if "eject_z" not in optimizations:
-                    optimizations.append("eject_z")
-            if "eject_phased_paulis" in cirq_opt:
-                if "eject_phased_paulis" not in optimizations:
-                    optimizations.append("eject_phased_paulis")
-        
-        # Add optimizations based on level
         if level in ["balanced", "aggressive"]:
-            if "drop_negligible_operations" not in optimizations:
-                optimizations.append("drop_negligible_operations")
+            optimizations.append("merge_adjacent_gates")
         
         if level == "aggressive":
-            if "eject_z" not in optimizations:
-                optimizations.append("eject_z")
-            if "eject_phased_paulis" not in optimizations:
-                optimizations.append("eject_phased_paulis")
+            optimizations.append("decompose_multi_qubit")
+            optimizations.append("reorder_for_depth")
         
         return optimizations
     
@@ -229,13 +180,12 @@ class OptimizerAgent(BaseAgent):
         
         Args:
             task: Task dictionary with:
-                - code: The Cirq code to optimize
+                - code: The Braket code to optimize
                 - circuit: Or a circuit object directly
                 - algorithm: Algorithm type for RAG lookup
                 - optimization_level: "minimal", "balanced", or "aggressive"
-                - use_rl: Whether to use RL optimization
                 - use_llm: Whether to use LLM optimization
-                - use_heuristics: Whether to use Cirq heuristics (default True)
+                - use_heuristics: Whether to use heuristics (default True)
             
         Returns:
             Result dictionary with optimized code and metrics
@@ -252,15 +202,12 @@ class OptimizerAgent(BaseAgent):
             }
         
         try:
-            # Get circuit object
             if code:
                 compiled = self.compiler.compile(code, execute=True)
                 if not compiled["success"] or not compiled.get("circuit"):
-                    # Try to fix compilation errors using LLM
                     logger.warning(f"Initial compilation failed: {compiled.get('errors')}")
                     logger.info("Attempting to fix code with LLM...")
                     
-                    # Build error description
                     error_messages = []
                     for err in compiled.get("errors", []):
                         if isinstance(err, dict):
@@ -269,8 +216,7 @@ class OptimizerAgent(BaseAgent):
                             error_messages.append(str(err))
                     error_desc = "\n".join(error_messages)
                     
-                    # Use LLM to fix the code
-                    fix_prompt = f"""Fix the following Cirq code that has compilation/execution errors.
+                    fix_prompt = f"""Fix the following Amazon Braket code that has compilation/execution errors.
 
 Original Code:
 {code}
@@ -281,9 +227,9 @@ Errors:
 Instructions:
 1. Fix all compilation and execution errors
 2. Ensure the code creates a circuit variable that can be executed
-3. For QAOA: NEVER use cirq.contrib.qaoa - build manually with cirq.ZZ and cirq.rx
-4. For VQE: Ensure the circuit is created and assigned to a variable (not just returned from a function)
-5. Return ONLY the fixed, executable Cirq code
+3. Use the Braket SDK API: from braket.circuits import Circuit
+4. Use circuit method chaining: circuit.h(0).cnot(0, 1) etc.
+5. Return ONLY the fixed, executable Braket code
 
 Fixed code:"""
                     
@@ -292,18 +238,16 @@ Fixed code:"""
                         fixed_code = fix_result.get("code", "")
                         
                         if fixed_code:
-                            # Try compiling the fixed code
                             fixed_compiled = self.compiler.compile(fixed_code, execute=True)
                             if fixed_compiled["success"] and fixed_compiled.get("circuit"):
-                                logger.info("✅ LLM successfully fixed compilation errors")
-                                code = fixed_code  # Use the fixed code
+                                logger.info("LLM successfully fixed compilation errors")
+                                code = fixed_code
                                 compiled = fixed_compiled
                             else:
                                 logger.warning(f"LLM fix still has errors: {fixed_compiled.get('errors')}")
                     except Exception as e:
                         logger.warning(f"LLM fix attempt failed: {e}")
                     
-                    # If still no circuit, return error
                     if not compiled["success"] or not compiled.get("circuit"):
                         return {
                             "success": False,
@@ -312,28 +256,22 @@ Fixed code:"""
                 
                 circuit = compiled["circuit"]
             
-            if not isinstance(circuit, cirq.Circuit):
+            if not isinstance(circuit, Circuit):
                 return {
                     "success": False,
                     "error": "Invalid circuit object",
                 }
             
-            # Analyze original circuit
             original_analysis = self.analyzer.analyze(circuit)
-            
-            # Track original code for comparison
             original_code = code if code else self._circuit_to_code(circuit)
             
-            # Retrieve optimization references from RAG
             references = self._retrieve_optimization_references(code or "", algorithm)
             if references:
                 logger.info(f"Retrieved {len(references)} optimization references from RAG")
             
-            # Initialize optimized versions
             optimized_circuit = circuit
             optimized_code = original_code
             
-            # 1. LLM Optimization (if requested)
             if task.get("use_llm", False):
                 logger.info("Running LLM optimization")
                 llm_result = self._optimize_with_llm(optimized_code, references)
@@ -347,24 +285,12 @@ Fixed code:"""
                 else:
                     logger.warning(f"LLM optimization failed: {llm_result.get('error')}")
 
-            # 2. Heuristic Optimization (default)
             if task.get("use_heuristics", True):
-                # Select optimizations based on RAG references
                 optimizations = self._select_optimizations(optimized_circuit, references, optimization_level)
                 logger.debug(f"Selected optimizations: {optimizations}")
-                
-                optimized_circuit = self._optimize_circuit(optimized_circuit, optimizations)
                 optimized_code = self._circuit_to_code(optimized_circuit)
             
-            # 3. RL Optimization
-            if task.get("use_rl", False):
-                optimized_circuit = self._optimize_with_rl(optimized_circuit)
-                optimized_code = self._circuit_to_code(optimized_circuit)
-                
-            # Final Analysis
             optimized_analysis = self.analyzer.analyze(optimized_circuit)
-            
-            # Compare results
             comparison = self.analyzer.compare(circuit, optimized_circuit)
             
             return {
@@ -391,20 +317,17 @@ Fixed code:"""
         code: str,
         references: List[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
-        """
-        Optimize circuit code using LLM with RAG context.
-        """
-        # Build context from references
+        """Optimize circuit code using LLM with RAG context."""
         context = ""
         if references:
             context_parts = []
-            for ref in references[:2]:  # Use top 2 references
+            for ref in references[:2]:
                 entry = ref.get("entry", {})
                 if entry.get("optimized_code"):
                     context_parts.append(f"Example optimization:\n{entry.get('optimized_code')}")
             context = "\n\n".join(context_parts)
         
-        prompt = f"""Optimize the following Cirq code to reduce circuit depth and gate count while maintaining the same quantum logic.
+        prompt = f"""Optimize the following Amazon Braket code to reduce circuit depth and gate count while maintaining the same quantum logic.
 
 Original Code:
 {code}
@@ -415,7 +338,7 @@ Instructions:
 1. Analyze the circuit for redundant gates and inefficient patterns.
 2. Apply circuit identities and optimizations to reduce depth and gate count.
 3. CRITICAL: PRESERVE the original qubit initialization method and variable names.
-4. Return ONLY the full, executable Cirq code for the optimized circuit.
+4. Return ONLY the full, executable Braket code for the optimized circuit.
 5. Do not include explanations, just the code.
 """
         
@@ -431,80 +354,6 @@ Instructions:
                 "success": False,
                 "error": str(e)
             }
-
-    def _optimize_circuit(self, circuit: cirq.Circuit, optimizations: List[str]) -> cirq.Circuit:
-        """Apply selected Cirq optimizations to circuit."""
-        optimized = circuit.copy()
-        
-        for opt_name in optimizations:
-            try:
-                if opt_name == "merge_single_qubit_gates_to_phxz":
-                    optimized = cirq.merge_single_qubit_gates_to_phxz(optimized)
-                elif opt_name == "drop_negligible_operations":
-                    optimized = cirq.drop_negligible_operations(optimized)
-                elif opt_name == "eject_z":
-                    optimized = cirq.eject_z(optimized)
-                elif opt_name == "eject_phased_paulis":
-                    optimized = cirq.eject_phased_paulis(optimized)
-                elif opt_name == "expand_composite":
-                    optimized = cirq.expand_composite(optimized)
-                elif opt_name == "defer_measurements":
-                    optimized = cirq.defer_measurements(optimized)
-            except Exception as e:
-                logger.warning(f"Optimization {opt_name} failed: {e}")
-        
-        return optimized
-
-    def _optimize_with_rl(self, circuit: cirq.Circuit) -> cirq.Circuit:
-        """Apply Reinforcement Learning based optimization."""
-        from ..cirq_rag_code_assistant.config import get_config
-        config = get_config()
-        rl_config = config.get("agents", {}).get("optimizer", {})
-        weights = rl_config.get("rl_reward_weights", {})
-        iterations = rl_config.get("rl_iterations", 10)
-        
-        current_circuit = circuit.copy()
-        current_metrics = self.analyzer.analyze(current_circuit)["metrics"]
-        current_reward = self._calculate_reward(current_metrics, weights)
-        
-        logger.info(f"Starting RL optimization (iterations={iterations})")
-        
-        transformations = [
-            cirq.merge_single_qubit_gates_to_phxz,
-            cirq.drop_negligible_operations,
-            cirq.eject_z,
-            cirq.eject_phased_paulis,
-            cirq.expand_composite,
-            cirq.defer_measurements,
-        ]
-        
-        for i in range(iterations):
-            best_next_circuit = current_circuit
-            best_next_reward = current_reward
-            improved = False
-            
-            for transform in transformations:
-                try:
-                    candidate = transform(current_circuit)
-                    metrics = self.analyzer.analyze(candidate)["metrics"]
-                    reward = self._calculate_reward(metrics, weights)
-                    
-                    if reward > best_next_reward:
-                        best_next_circuit = candidate
-                        best_next_reward = reward
-                        improved = True
-                except Exception:
-                    continue
-            
-            if improved:
-                current_circuit = best_next_circuit
-                current_reward = best_next_reward
-                logger.debug(f"RL Iteration {i+1}: Improved reward to {current_reward:.4f}")
-            else:
-                logger.debug(f"RL Iteration {i+1}: No improvement")
-                break
-                
-        return current_circuit
 
     def _calculate_reward(self, metrics: Dict[str, Any], weights: Dict[str, float]) -> float:
         """Calculate reward based on circuit metrics and weights."""

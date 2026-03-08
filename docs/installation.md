@@ -2,10 +2,10 @@
 
 ## 🚀 Quick Start
 
-The fastest way to get started with Cirq-RAG-Code-Assistant is to install it using pip:
+The fastest way to get started with Braket-RAG-Code-Assistant is to install it using pip:
 
 ```bash
-pip install cirq-rag-code-assistant
+pip install braket-rag-code-assistant
 ```
 
 ## 📋 Prerequisites
@@ -62,13 +62,13 @@ python -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA av
 
 #### From PyPI (Recommended)
 ```bash
-pip install cirq-rag-code-assistant
+pip install braket-rag-code-assistant
 ```
 
 #### From Source
 ```bash
-git clone https://github.com/umerfarooq/cirq-rag-code-assistant.git
-cd cirq-rag-code-assistant
+git clone https://github.com/umerfarooq/braket-rag-code-assistant.git
+cd braket-rag-code-assistant
 pip install -e .
 ```
 
@@ -77,8 +77,8 @@ pip install -e .
 For development work, install with all development dependencies:
 
 ```bash
-git clone https://github.com/umerfarooq/cirq-rag-code-assistant.git
-cd cirq-rag-code-assistant
+git clone https://github.com/umerfarooq/braket-rag-code-assistant.git
+cd braket-rag-code-assistant
 pip install -e ".[dev,gpu,quantum,qcanvas]"
 ```
 
@@ -87,18 +87,18 @@ pip install -e ".[dev,gpu,quantum,qcanvas]"
 #### Create Virtual Environment
 ```bash
 # Create virtual environment
-python -m venv cirq-rag-env
+python -m venv braket-rag-env
 
 # Activate (Linux/macOS)
-source cirq-rag-env/bin/activate
+source braket-rag-env/bin/activate
 
 # Activate (Windows)
-cirq-rag-env\Scripts\activate
+braket-rag-env\Scripts\activate
 ```
 
 #### Install in Virtual Environment
 ```bash
-pip install cirq-rag-code-assistant
+pip install braket-rag-code-assistant
 ```
 
 ### 4. Using Poetry (Alternative)
@@ -120,7 +120,7 @@ poetry shell
 
 ### Basic Installation
 ```bash
-pip install cirq-rag-code-assistant
+pip install braket-rag-code-assistant
 ```
 
 ### With PyTorch CUDA GPU Support
@@ -133,22 +133,22 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
 pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
 
 # Then install the package
-pip install cirq-rag-code-assistant[gpu]
+pip install braket-rag-code-assistant[gpu]
 ```
 
 ### With Quantum Computing Extensions
 ```bash
-pip install cirq-rag-code-assistant[quantum]
+pip install braket-rag-code-assistant[quantum]
 ```
 
 ### With QCanvas Integration
 ```bash
-pip install cirq-rag-code-assistant[qcanvas]
+pip install braket-rag-code-assistant[qcanvas]
 ```
 
 ### Complete Development Installation
 ```bash
-pip install cirq-rag-code-assistant[dev,gpu,quantum,qcanvas]
+pip install braket-rag-code-assistant[dev,gpu,quantum,qcanvas]
 ```
 
 ## 🔍 Verification
@@ -156,20 +156,20 @@ pip install cirq-rag-code-assistant[dev,gpu,quantum,qcanvas]
 ### Check Installation
 ```bash
 # Check version
-cirq-rag --version
+braket-rag --version
 
 # Test CLI
-cirq-rag --help
+braket-rag --help
 
 # Test Python import
-python -c "import cirq_rag_code_assistant; print('Installation successful!')"
+python -c "import braket_rag_code_assistant; print('Installation successful!')"
 ```
 
 ### Run Basic Test
 ```bash
 # Test basic functionality
 python -c "
-from cirq_rag_code_assistant import DesignerAgent
+from braket_rag_code_assistant import DesignerAgent
 agent = DesignerAgent()
 print('Designer Agent initialized successfully!')
 "
@@ -180,13 +180,13 @@ print('Designer Agent initialized successfully!')
 ### Verify QCanvas Integration
 ```bash
 # Test QCanvas integration
-python -c "from cirq_rag_code_assistant.integration import QCanvasClient; print('QCanvas integration ready!')"
+python -c "from braket_rag_code_assistant.integration import QCanvasClient; print('QCanvas integration ready!')"
 ```
 
 ### Start Development Server for QCanvas
 ```bash
 # Start server for QCanvas integration
-cirq-rag server --host 0.0.0.0 --port 8000
+braket-rag server --host 0.0.0.0 --port 8000
 ```
 
 ## 🔧 Configuration
@@ -197,11 +197,11 @@ Create a `.env` file in your project directory:
 ```bash
 # API Configuration
 OPENAI_API_KEY=your_openai_api_key_here
-CIRQ_RAG_LOG_LEVEL=INFO
-CIRQ_RAG_DEBUG=false
+BRAKET_RAG_LOG_LEVEL=INFO
+BRAKET_RAG_DEBUG=false
 
 # Database Configuration (SQLite for development)
-DATABASE_URL=sqlite:///./cirq_rag.db
+DATABASE_URL=sqlite:///./braket_rag.db
 
 # Vector Database
 VECTOR_DB_PATH=./vector_db
@@ -225,7 +225,7 @@ PORT=8000
 Create `config.yaml`:
 
 ```yaml
-# Cirq-RAG-Code-Assistant Configuration
+# Braket-RAG-Code-Assistant Configuration
 system:
   log_level: INFO
   debug: false
@@ -255,7 +255,7 @@ rag:
     update_interval: 3600
 
 database:
-  url: "sqlite:///./cirq_rag.db"
+  url: "sqlite:///./braket_rag.db"
   echo: false
 
 cache:
@@ -295,10 +295,10 @@ From the project root directory:
 ```bash
 # Create Designer Agent (code generation)
 cd config/ollama
-ollama create cirq-designer-agent -f designer_agent.Modelfile
+ollama create braket-designer-agent -f designer_agent.Modelfile
 
 # Create Educational Agent (explanations)
-ollama create cirq-edu-agent -f educational_agent.Modelfile
+ollama create braket-edu-agent -f educational_agent.Modelfile
 
 # Return to project root
 cd ../..
@@ -311,21 +311,21 @@ cd ../..
 ollama list
 
 # Test Designer Agent
-ollama run cirq-designer-agent "Create a Bell state circuit"
+ollama run braket-designer-agent "Create a Bell state circuit"
 
 # Test Educational Agent  
-ollama run cirq-edu-agent "Explain superposition simply"
+ollama run braket-edu-agent "Explain superposition simply"
 ```
 
 ### Remove/Recreate Agent Models
 
 ```bash
 # Remove an agent
-ollama rm cirq-designer-agent
+ollama rm braket-designer-agent
 
 # Recreate after modifying Modelfile
 cd config/ollama
-ollama create cirq-designer-agent -f designer_agent.Modelfile
+ollama create braket-designer-agent -f designer_agent.Modelfile
 ```
 
 ## 🚀 First Run
@@ -333,17 +333,17 @@ ollama create cirq-designer-agent -f designer_agent.Modelfile
 ### Initialize the System
 ```bash
 # Initialize knowledge base
-cirq-rag init
+braket-rag init
 
 # Start the server
-cirq-rag server
+braket-rag server
 
 # Or use the CLI
-cirq-rag generate "Create a simple VQE circuit"
+braket-rag generate "Create a simple VQE circuit"
 ```
 
 ### Web Interface
-1. Start the server: `cirq-rag server`
+1. Start the server: `braket-rag server`
 2. Open browser: `http://localhost:8000`
 3. Access API docs: `http://localhost:8000/docs`
 
@@ -351,8 +351,8 @@ cirq-rag generate "Create a simple VQE circuit"
 
 ### Clone Repository
 ```bash
-git clone https://github.com/umerfarooq/cirq-rag-code-assistant.git
-cd cirq-rag-code-assistant
+git clone https://github.com/umerfarooq/braket-rag-code-assistant.git
+cd braket-rag-code-assistant
 ```
 
 ### Install Development Dependencies
@@ -370,7 +370,7 @@ pre-commit install
 pytest
 
 # Run with coverage
-pytest --cov=cirq_rag_code_assistant
+pytest --cov=braket_rag_code_assistant
 
 # Run specific test categories
 pytest -m "not slow"
@@ -408,19 +408,19 @@ ERROR: Out of memory during installation
 ```
 **Solution**: 
 - Close other applications
-- Use `--no-cache-dir` flag: `pip install --no-cache-dir cirq-rag-code-assistant`
+- Use `--no-cache-dir` flag: `pip install --no-cache-dir braket-rag-code-assistant`
 
 #### 3. CUDA/GPU Issues
 ```
 ERROR: CUDA not found
 ```
 **Solution**: 
-- Install CPU-only version: `pip install cirq-rag-code-assistant`
+- Install CPU-only version: `pip install braket-rag-code-assistant`
 - Or install CUDA toolkit for GPU support
 
 #### 4. Import Errors
 ```
-ModuleNotFoundError: No module named 'cirq_rag_code_assistant'
+ModuleNotFoundError: No module named 'braket_rag_code_assistant'
 ```
 **Solution**:
 - Ensure virtual environment is activated
@@ -432,7 +432,7 @@ ERROR: Permission denied
 ```
 **Solution**:
 - Use virtual environment
-- Or use `--user` flag: `pip install --user cirq-rag-code-assistant`
+- Or use `--user` flag: `pip install --user braket-rag-code-assistant`
 
 ### Getting Help
 
@@ -442,20 +442,20 @@ ERROR: Permission denied
 python --version
 
 # Check installed packages
-pip list | grep cirq-rag
+pip list | grep braket-rag
 
 # Test import
-python -c "import cirq_rag_code_assistant; print('OK')"
+python -c "import braket_rag_code_assistant; print('OK')"
 ```
 
 #### Debug Mode
 ```bash
 # Enable debug logging
-export CIRQ_RAG_DEBUG=true
-export CIRQ_RAG_LOG_LEVEL=DEBUG
+export BRAKET_RAG_DEBUG=true
+export BRAKET_RAG_LOG_LEVEL=DEBUG
 
 # Run with verbose output
-cirq-rag --verbose generate "test"
+braket-rag --verbose generate "test"
 ```
 
 #### Log Files
@@ -473,14 +473,14 @@ After successful installation:
 1. **Read the Documentation**: Start with [Quick Start Guide](quickstart.md)
 2. **Explore Examples**: Check [Usage Examples](examples/README.md)
 3. **API Reference**: See [API Documentation](api/README.md)
-4. **Join Community**: Visit our [GitHub Discussions](https://github.com/umerfarooq/cirq-rag-code-assistant/discussions)
+4. **Join Community**: Visit our [GitHub Discussions](https://github.com/umerfarooq/braket-rag-code-assistant/discussions)
 
 ## 🔄 Updates
 
 ### Update Installation
 ```bash
 # Update to latest version
-pip install --upgrade cirq-rag-code-assistant
+pip install --upgrade braket-rag-code-assistant
 
 # Update from source
 git pull origin main
@@ -490,10 +490,10 @@ pip install -e .
 ### Uninstall
 ```bash
 # Remove package
-pip uninstall cirq-rag-code-assistant
+pip uninstall braket-rag-code-assistant
 
 # Remove virtual environment
-rm -rf cirq-rag-env
+rm -rf braket-rag-env
 ```
 
 ---

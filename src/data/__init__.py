@@ -2,7 +2,7 @@
 Data Processing Module
 
 This module handles data fetching, preprocessing, and loading for the
-Cirq-RAG-Code-Assistant knowledge base.
+Braket-RAG-Code-Assistant knowledge base.
 
 Author: Umer Farooq, Hussain Waseem Syed, Muhammad Irtaza Khan
 Email: umerfarooqcs0891@gmail.com

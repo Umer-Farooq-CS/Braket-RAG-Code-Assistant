@@ -2,16 +2,16 @@
 
 ## 🎯 Overview
 
-The Designer Agent is the primary code generation component of the Cirq-RAG-Code-Assistant system. It transforms natural language descriptions into syntactically correct, executable Cirq quantum computing code.
+The Designer Agent is the primary code generation component of the Braket-RAG-Code-Assistant system. It transforms natural language descriptions into syntactically correct, executable Braket quantum computing code.
 
 ## 🧠 Core Responsibilities
 
 ### Primary Functions
 1. **Natural Language Processing**: Parse and understand user requirements
-2. **Code Generation**: Create Cirq code from high-level descriptions
+2. **Code Generation**: Create Braket code from high-level descriptions
 3. **Template Management**: Select and customize appropriate code templates
 4. **Algorithm Implementation**: Generate specific quantum algorithms
-5. **Best Practices**: Apply Cirq coding standards and conventions
+5. **Best Practices**: Apply Braket coding standards and conventions
 
 ### Supported Algorithms
 - **VQE** (Variational Quantum Eigensolver)
@@ -119,11 +119,11 @@ class TemplateSelector:
 #### 4. Code Generator
 ```python
 class CodeGenerator:
-    """Generates Cirq code from templates and requirements."""
+    """Generates Braket code from templates and requirements."""
     
     def __init__(self):
         self.template_engine = TemplateEngine()
-        self.cirq_generator = CirqCodeGenerator()
+        self.braket_generator = BraketCodeGenerator()
         self.import_manager = ImportManager()
     
     def generate_code(self, template: CodeTemplate, params: dict) -> GeneratedCode:
@@ -131,7 +131,7 @@ class CodeGenerator:
         Generate code by:
         1. Filling template parameters
         2. Adding necessary imports
-        3. Applying Cirq best practices
+        3. Applying Braket best practices
         4. Ensuring syntax correctness
         """
         # 1. Process template
@@ -141,7 +141,7 @@ class CodeGenerator:
         imports = self.import_manager.get_imports(code)
         
         # 3. Apply best practices
-        optimized_code = self.cirq_generator.optimize(code)
+        optimized_code = self.braket_generator.optimize(code)
         
         # 4. Validate syntax
         self.validate_syntax(optimized_code)
@@ -194,11 +194,11 @@ class CodeGenerator:
 ### Example Generated Code
 
 ```python
-import cirq
+from braket.circuits import Circuit
 import numpy as np
 from scipy.optimize import minimize
 
-def create_h2_vqe_circuit(num_qubits: int = 4, num_layers: int = 2) -> cirq.Circuit:
+def create_h2_vqe_circuit(num_qubits: int = 4, num_layers: int = 2) -> Circuit:
     """
     Create a VQE circuit for H2 molecule optimization.
     
@@ -207,36 +207,36 @@ def create_h2_vqe_circuit(num_qubits: int = 4, num_layers: int = 2) -> cirq.Circ
         num_layers: Number of variational layers
     
     Returns:
-        Parameterized Cirq circuit for VQE
+        Parameterized Braket circuit for VQE
     """
     # Create qubits
-    qubits = cirq.LineQubit.range(num_qubits)
+    qubits = range(num_qubits)
     
     # Initialize circuit
-    circuit = cirq.Circuit()
+    circuit = Circuit()
     
     # Add variational layers
     for layer in range(num_layers):
         # Add parameterized rotations
         for i, qubit in enumerate(qubits):
-            circuit.append(cirq.ry(cirq.Symbol(f'theta_{layer}_{i}'))(qubit))
+            circuit.append(circuit.ry(FreeParameter(f'theta_{layer}_{i}'))(qubit))
         
         # Add entangling gates
         for i in range(num_qubits - 1):
-            circuit.append(cirq.CNOT(qubits[i], qubits[i + 1]))
+            circuit.append(circuit.cnot(qubits[i], qubits[i + 1]))
     
     return circuit
 
-def vqe_cost_function(params: np.ndarray, circuit: cirq.Circuit) -> float:
+def vqe_cost_function(params: np.ndarray, circuit: Circuit) -> float:
     """Calculate the cost function for VQE optimization."""
     # Resolve parameters
-    param_resolver = cirq.ParamResolver({
+    param_resolver = dict({
         param.name: params[i] 
-        for i, param in enumerate(circuit.findall_operations_with_gate_type(cirq.Symbol))
+        for i, param in enumerate(circuit.findall_operations_with_gate_type(FreeParameter))
     })
     
     # Simulate circuit
-    simulator = cirq.Simulator()
+    simulator = LocalSimulator()
     result = simulator.simulate(circuit, param_resolver=param_resolver)
     
     # Calculate expectation value (simplified)
@@ -322,7 +322,7 @@ class CodeValidator:
 ```
 
 ### Best Practices Enforcement
-- **Naming Conventions**: Follow Python and Cirq naming standards
+- **Naming Conventions**: Follow Python and Braket naming standards
 - **Documentation**: Include docstrings and comments
 - **Error Handling**: Proper exception handling and validation
 - **Performance**: Efficient algorithms and data structures
@@ -405,7 +405,7 @@ class TestDesignerAgent:
         result = agent.generate_code("Create a VQE circuit for H2")
         assert result.algorithm == "vqe"
         assert result.syntax_valid
-        assert "cirq" in result.imports
+        assert "braket" in result.imports
     
     def test_parameter_handling(self):
         """Test parameter extraction and handling."""

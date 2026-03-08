@@ -1,11 +1,11 @@
 ================================================================================
                     GENERATIVE AI PROJECT - PROMPTS LOG
 ================================================================================
-Project: Cirq-RAG Code Assistant - A Multi-Agent Quantum Circuit Generation System
+Project: Braket-RAG Code Assistant - A Multi-Agent Quantum Circuit Generation System
 ================================================================================
 
 
-1. Now understand this proposal and see what I want to do. Then explain to me this, I have already downloaded qwen2.5-coder:14b-instruct-q4_K_M model as my LLM and it generates a nice Cirq code as well as other GPTs like ChatGPT and Copilot and Deepseek Claude Gemini all of them give nice codes and the stuff that we are doing. Explain to me what can I do there which will make my project actually useful i.e something that these LLMs cant do by default or struggle with etc.
+1. Now understand this proposal and see what I want to do. Then explain to me this, I have already downloaded qwen2.5-coder:14b-instruct-q4_K_M model as my LLM and it generates a nice Braket code as well as other GPTs like ChatGPT and Copilot and Deepseek Claude Gemini all of them give nice codes and the stuff that we are doing. Explain to me what can I do there which will make my project actually useful i.e something that these LLMs cant do by default or struggle with etc.
 
 2. Validate Knowledge Base Circuits. The user's primary objective is to ensure the robustness of the ValidatorAgent's self-correction mechanism and the integrity of the knowledge base circuits. This involves: (1) Fixing the ValidatorAgent to trigger LLM-powered code fixing for all validation failures, including compilation errors and cases where no circuit is detected, not just simulation failures. (2) Verifying that the system is correctly utilizing the knowledge base for Designer Agent code generation. (3) Creating a dedicated test script to systematically run and validate every code example within the curated_designer_examples.jsonl knowledge base.
 
@@ -27,7 +27,7 @@ Project: Cirq-RAG Code Assistant - A Multi-Agent Quantum Circuit Generation Syst
 
 11. How do I set up a ChromaDB vector store for storing quantum circuit code examples? I need to store code snippets with metadata, use a local embedding model, support hybrid search, and persist the database to disk.
 
-12. I need to create a knowledge base of Cirq code examples for my RAG system. What categories of quantum circuits should I include? Consider basic gates, common algorithms (Grover, Shor, QFT, VQE, QAOA), error correction codes, hardware-specific optimizations. How should I structure the JSONL file for easy retrieval?
+12. I need to create a knowledge base of Braket code examples for my RAG system. What categories of quantum circuits should I include? Consider basic gates, common algorithms (Grover, Shor, QFT, VQE, QAOA), error correction codes, hardware-specific optimizations. How should I structure the JSONL file for easy retrieval?
 
 13. What retrieval strategy should I use for my quantum circuit RAG system? I want to combine semantic similarity, topic/keyword matching, and difficulty filtering. How do I implement a hybrid scoring system that boosts results matching specific topics mentioned in the query?
 
@@ -35,9 +35,9 @@ Project: Cirq-RAG Code Assistant - A Multi-Agent Quantum Circuit Generation Syst
 
 15. Implement a self-correction mechanism for the Validator agent. When code fails to compile or simulate: capture the error message, send the code and error to the LLM for fixing, retry validation with the fixed code, limit retries to prevent infinite loops. How do I structure the prompt to the LLM to get good code fixes?
 
-16. My generated Cirq code is using deprecated APIs like cirq.optimizers and cirq.contrib.qaoa which don't exist in the current version. How do I update the knowledge base to use modern Cirq syntax, add negative examples to prevent the LLM from generating deprecated code, and use cirq.transformers instead of cirq.optimizers?
+16. My generated Braket code is using deprecated APIs like braket.circuits.compiler_directives and braket.experimental.algorithms.qaoa which don't exist in the current version. How do I update the knowledge base to use modern Braket syntax, add negative examples to prevent the LLM from generating deprecated code, and use braket.circuits.compiler_directives instead of braket.circuits.compiler_directives?
 
-17. My ValidatorAgent is using a remote QCanvas backend but I need it to use local Cirq simulation. The config.json says mode="local" but the notebook hardcodes mode="remote". How do I fix the notebook to read from config, ensure local Cirq simulation works correctly, and format results to match the expected output structure?
+17. My ValidatorAgent is using a remote QCanvas backend but I need it to use local Braket simulation. The config.json says mode="local" but the notebook hardcodes mode="remote". How do I fix the notebook to read from config, ensure local Braket simulation works correctly, and format results to match the expected output structure?
 
 18. Update notebooks 06_optimizer_agent.ipynb and 07_validator_agent.ipynb to correctly initialize OptimizerAgent and ValidatorAgent with a shared Retriever instance, enabling RAG functionality.
 

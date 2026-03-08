@@ -3,7 +3,7 @@
 | **Student** | Umer Farooq |
 |-------------|-------------|
 | **Roll Number** | 22I-0891 |
-| **Project** | Cirq-RAG Code Assistant |
+| **Project** | Braket-RAG Code Assistant |
 | **Description** | Multi-Agent Quantum Circuit Generation System |
 
 ---
@@ -30,7 +30,7 @@
 > ```
 > Now understand this proposal and see what I want to do. Then explain to me 
 > this, I have already downloaded qwen2.5-coder:14b-instruct-q4_K_M model as 
-> my LLM and it generates a nice Cirq code as well as other GPTs like ChatGPT 
+> my LLM and it generates a nice Braket code as well as other GPTs like ChatGPT 
 > and Copilot and Deepseek Claude Gemini all of them give nice codes and the 
 > stuff that we are doing.
 > 
@@ -101,7 +101,7 @@
 
 | Prompt | Session Date | Description |
 |--------|--------------|-------------|
-| 4.1 | 2025-12-07 | Updated knowledge base with curated Cirq examples |
+| 4.1 | 2025-12-07 | Updated knowledge base with curated Braket examples |
 | 4.2 | 2025-12-07 | Updated notebooks with shared Retriever for RAG |
 | 4.3 | 2025-12-06 | Refactored orchestration module and pipeline |
 | 4.4 | 2025-12-06 | Implemented custom Ollama Modelfile for designer |
@@ -129,13 +129,13 @@
 
 > ```
 > I'm building a multi-agent RAG system with the following agents:
-> 1. Designer Agent - generates Cirq quantum circuit code from user queries
+> 1. Designer Agent - generates Braket quantum circuit code from user queries
 > 2. Validator Agent - validates and fixes generated code
 > 3. Optimizer Agent - optimizes circuits for depth, gate count, etc.
 > 4. Educational Agent - explains quantum concepts
 > 
 > What Ollama models would you recommend for each agent? Consider:
-> - Code generation capability (especially for Python/Cirq)
+> - Code generation capability (especially for Python/Braket)
 > - Instruction following for structured output (JSON)
 > - Context window size for RAG retrieval
 > - Speed vs accuracy tradeoff
@@ -218,7 +218,7 @@
 ### Prompt 6.2 - Knowledge Base Curation
 
 > ```
-> I need to create a knowledge base of Cirq code examples for my RAG system.
+> I need to create a knowledge base of Braket code examples for my RAG system.
 > What categories of quantum circuits should I include? Consider:
 > - Basic gates and measurements
 > - Common algorithms (Grover, Shor, QFT, VQE, QAOA)
@@ -284,14 +284,14 @@
 
 ## 8. Debugging & Troubleshooting
 
-### Prompt 8.1 - Fixing Cirq Deprecated APIs
+### Prompt 8.1 - Fixing Braket Deprecated APIs
 
 > ```
-> My generated Cirq code is using deprecated APIs like cirq.optimizers and
-> cirq.contrib.qaoa which don't exist in the current version. How do I:
-> 1. Update the knowledge base to use modern Cirq syntax
+> My generated Braket code is using deprecated APIs like braket.circuits.compiler_directives and
+> braket.experimental.algorithms.qaoa which don't exist in the current version. How do I:
+> 1. Update the knowledge base to use modern Braket syntax
 > 2. Add negative examples to prevent the LLM from generating deprecated code
-> 3. Use cirq.transformers instead of cirq.optimizers
+> 3. Use braket.circuits.compiler_directives instead of braket.circuits.compiler_directives
 > ```
 
 **Context:** Fixed KB entries and added `modern_api_dont_use_*` examples.
@@ -299,11 +299,11 @@
 ### Prompt 8.2 - Validation Mode Switch
 
 > ```
-> My ValidatorAgent is using a remote QCanvas backend but I need local Cirq 
+> My ValidatorAgent is using a remote QCanvas backend but I need local Braket 
 > simulation. The config.json says mode="local" but the notebook hardcodes
 > mode="remote". How do I:
 > 1. Fix the notebook to read from config
-> 2. Ensure local Cirq simulation works correctly
+> 2. Ensure local Braket simulation works correctly
 > 3. Format results to match the expected output structure
 > ```
 
@@ -317,7 +317,7 @@
 |-----------|-------------|---------|
 | **Context Setting** | Providing background before asking | Explaining multi-agent architecture first |
 | **Step-by-Step** | Breaking tasks into numbered steps | "1. Fix... 2. Verify... 3. Create..." |
-| **Constraints** | Stating limitations clearly | "must use local Cirq, not QCanvas" |
+| **Constraints** | Stating limitations clearly | "must use local Braket, not QCanvas" |
 | **References** | Including URLs, paths, snippets | Sharing DeepSeek chat link |
 | **Iteration** | Following up to refine | Fixing LLM trigger after feedback |
 | **Verification** | Asking AI to validate work | Running tests to confirm fixes |
@@ -336,7 +336,7 @@ Below are all prompts without context for quick copy-paste:
 ```
 Now understand this proposal and see what I want to do. Then explain to me this, 
 I have already downloaded qwen2.5-coder:14b-instruct-q4_K_M model as my LLM and 
-it generates a nice Cirq code as well as other GPTs like ChatGPT and Copilot and 
+it generates a nice Braket code as well as other GPTs like ChatGPT and Copilot and 
 Deepseek Claude Gemini all of them give nice codes. Explain to me what can I do 
 there which will make my project actually useful i.e something that these LLMs 
 cant do by default or struggle with etc.
@@ -403,11 +403,11 @@ Implement self-correction for Validator: capture error, send to LLM, retry with 
 
 ### Debugging
 ```
-My Cirq code uses deprecated APIs (cirq.optimizers, cirq.contrib.qaoa). How to fix KB?
+My Braket code uses deprecated APIs (braket.circuits.compiler_directives, braket.experimental.algorithms.qaoa). How to fix KB?
 ```
 
 ```
-ValidatorAgent uses remote backend but should use local Cirq. Config says local, notebook says remote.
+ValidatorAgent uses remote backend but should use local Braket. Config says local, notebook says remote.
 ```
 
 ---

@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "cirq-rag-code-assistant"
+name = "braket-rag-code-assistant"
 version = "0.1.0"
-description = "A research-grade system for generating and explaining Cirq quantum computing code using RAG and multi-agent architecture"
+description = "A research-grade system for generating and explaining Braket quantum computing code using RAG and multi-agent architecture"
 readme = "README.md"
 license = {file = "LICENSE"}
 authors = [
@@ -20,7 +20,8 @@ maintainers = [
 ]
 keywords = [
     "quantum computing",
-    "cirq",
+    "braket",
+    "amazon-braket-sdk",
     "rag",
     "multi-agent",
     "code generation",
@@ -46,7 +47,7 @@ classifiers = [
 requires-python = ">=3.11"
 dependencies = [
     # Core dependencies
-    "cirq>=1.2.0",
+    "amazon-braket-sdk>=1.50.0",
     "numpy>=1.24.0",
     "scipy>=1.10.0",
     "pandas>=2.0.0",
@@ -140,17 +141,17 @@ qcanvas = [
 ]
 
 all = [
-    "cirq-rag-code-assistant[dev,gpu,quantum,qcanvas]",
+    "braket-rag-code-assistant[dev,gpu,quantum,qcanvas]",
 ]
 
 [project.urls]
-Homepage = "https://github.com/umerfarooq/cirq-rag-code-assistant"
-Repository = "https://github.com/umerfarooq/cirq-rag-code-assistant.git"
-Issues = "https://github.com/umerfarooq/cirq-rag-code-assistant/issues"
-Documentation = "https://github.com/umerfarooq/cirq-rag-code-assistant#readme"
+Homepage = "https://github.com/umerfarooq/braket-rag-code-assistant"
+Repository = "https://github.com/umerfarooq/braket-rag-code-assistant.git"
+Issues = "https://github.com/umerfarooq/braket-rag-code-assistant/issues"
+Documentation = "https://github.com/umerfarooq/braket-rag-code-assistant#readme"
 
 [project.scripts]
-cirq-rag = "cirq_rag_code_assistant.cli.main:main"
+braket-rag = "braket_rag_code_assistant.cli.main:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
@@ -207,7 +208,7 @@ show_error_codes = true
 
 [[tool.mypy.overrides]]
 module = [
-    "cirq.*",
+    "braket.*",
     "torch.*",
     "torchvision.*",
     "transformers.*",

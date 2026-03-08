@@ -2,7 +2,7 @@ import json
 import os
 from pathlib import Path
 
-notebooks_dir = Path("d:/University/Uni/Semester 7/Generative AI/Project/Cirq-RAG-Code-Assistant/notebooks")
+notebooks_dir = Path("d:/University/Uni/Semester 7/Generative AI/Project/Braket-RAG-Code-Assistant/notebooks")
 
 updates = {
     "02_embeddings.ipynb": {
@@ -13,7 +13,7 @@ updates = {
             "## Purpose\n",
             "The primary goal of this notebook is to demonstrate how the system converts natural language text and code into high-dimensional vector representations. Specifically, it covers:\n",
             "\n",
-            "1.  **Embedding Generation**: Using the configured embedding model to transform text queries and Cirq code snippets into vector embeddings.\n",
+            "1.  **Embedding Generation**: Using the configured embedding model to transform text queries and Braket code snippets into vector embeddings.\n",
             "2.  **Dimensionality Analysis**: Verifying the output dimensions of the embeddings to ensure compatibility with the vector store.\n",
             "3.  **Similarity Analysis**: Calculating cosine similarity between different embeddings to understand how the model perceives relationships between concepts.\n",
             "4.  **Visualization**: Using dimensionality reduction techniques to visualize the embedding space.\n",
@@ -49,7 +49,7 @@ updates = {
             "\n",
             "1.  **Component Initialization**: Setting up the Retriever and Generator with the Knowledge Base.\n",
             "2.  **Context Retrieval**: Querying the knowledge base to find relevant code examples and documentation.\n",
-            "3.  **Code Generation**: Using an LLM (e.g., OpenAI, Anthropic) augmented with retrieved context to generate Cirq code from natural language prompts.\n",
+            "3.  **Code Generation**: Using an LLM (e.g., OpenAI, Anthropic) augmented with retrieved context to generate Amazon Braket code from natural language prompts.\n",
             "\n",
             "## Usage\n",
             "Run this notebook to test the end-to-end RAG pipeline, from query to generated code."
@@ -65,7 +65,7 @@ updates = {
             "\n",
             "1.  **Agent Setup**: Initializing the Designer Agent with RAG capabilities.\n",
             "2.  **Task Execution**: Sending natural language tasks (e.g., \"Create a Teleportation circuit\") to the agent.\n",
-            "3.  **Code Production**: Verifying that the agent produces syntactically correct Cirq code based on the input.\n",
+            "3.  **Code Production**: Verifying that the agent produces syntactically correct Braket code based on the input.\n",
             "\n",
             "## Usage\n",
             "Use this notebook to interact with the Designer Agent and generate initial circuit implementations."
@@ -79,12 +79,12 @@ updates = {
             "## Purpose\n",
             "The Optimizer Agent refines generated circuits to improve performance and efficiency. This notebook covers:\n",
             "\n",
-            "1.  **Heuristic Optimization**: Applying standard Cirq optimizations like gate merging and dropping negligible operations.\n",
+            "1.  **Heuristic Optimization**: Applying standard optimizations like gate merging and dropping negligible operations.\n",
             "2.  **RL Optimization**: Using a Reinforcement Learning loop to iteratively improve circuit metrics (depth, gate count) based on a reward function.\n",
             "3.  **Comparison**: Analyzing and comparing the metrics of the original vs. optimized circuits.\n",
             "\n",
             "## Usage\n",
-            "Run this notebook to optimize existing Cirq circuits and observe the improvements in circuit depth and gate count."
+            "Run this notebook to optimize existing Braket circuits and observe the improvements in circuit depth and gate count."
         ]
     },
     "07_validator_agent.ipynb": {
@@ -148,7 +148,7 @@ updates = {
             "3.  **Ablation Studies**: systematically disabling components (e.g., RAG, Optimizer) to evaluate their impact on performance.\n",
             "\n",
             "## Usage\n",
-            "Run this notebook to perform rigorous evaluation and benchmarking of the Cirq-RAG-Code-Assistant."
+            "Run this notebook to perform rigorous evaluation and benchmarking of the Braket-RAG-Code-Assistant."
         ]
     },
     "11_training.ipynb": {
@@ -160,7 +160,7 @@ updates = {
             "This notebook handles the training of the underlying models. It demonstrates:\n",
             "\n",
             "1.  **Dataset Preparation**: Loading and formatting data for training.\n",
-            "2.  **Fine-Tuning**: Training the LLM and/or embedding models on Cirq-specific datasets to improve domain understanding.\n",
+            "2.  **Fine-Tuning**: Training the LLM and/or embedding models on Braket-specific datasets to improve domain understanding.\n",
             "3.  **Model Saving**: Persisting the fine-tuned models for use in the RAG system.\n",
             "\n",
             "## Usage\n",

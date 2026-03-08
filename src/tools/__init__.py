@@ -9,13 +9,13 @@ Email: umerfarooqcs0891@gmail.com
 """
 
 # This file will export tool classes
-from .compiler import CirqCompiler
+from .compiler import BraketCompiler
 from .simulator import QuantumSimulator
 from .analyzer import CircuitAnalyzer
 from .qcanvas_client import QCanvasClient
 
 __all__ = [
-    "CirqCompiler",
+    "BraketCompiler",
     "QuantumSimulator",
     "CircuitAnalyzer",
     "QCanvasClient",

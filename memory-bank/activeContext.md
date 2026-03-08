@@ -8,7 +8,7 @@
 - Comprehensive evaluation and ablation studies completed
 
 ## Agent Pipeline Status (Fully Implemented)
-- **Designer Agent**: Always runs first, generates initial Cirq code with RAG context
+- **Designer Agent**: Always runs first, generates initial Braket code with RAG context
 - **Validator Agent**: Conditional, includes self-correction loop (up to 3 retries) and RAG-based semantic validation
 - **Optimizer Agent**: Conditional, supports heuristic, LLM, and RL-based optimization with validator loop
 - **Final Validator**: Always runs last, ensures quality before output
@@ -16,7 +16,7 @@
 
 ## Completed (Final State)
 - [x] Complete multi-agent pipeline implementation
-- [x] RAG system with 140+ curated Cirq knowledge base entries
+- [x] RAG system with 140+ curated Braket knowledge base entries
 - [x] Comprehensive evaluation framework with ablation studies
 - [x] Research paper in Springer LNCS format (`docs/Research Paper/LaTeX Files/main.tex`)
 - [x] Dockerfile for containerization

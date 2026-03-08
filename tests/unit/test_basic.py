@@ -1,4 +1,4 @@
-"""Basic unit tests for Cirq-RAG-Code-Assistant."""
+"""Basic unit tests for Braket-RAG-Code-Assistant."""
 
 import pytest
 import sys
@@ -20,7 +20,7 @@ class TestBasicFunctionality:
         """Test that basic imports work."""
         try:
             import torch
-            import cirq
+            from braket.circuits import Circuit
             import numpy as np
         except ImportError as e:
             pytest.fail(f"Failed to import required packages: {e}")
@@ -28,28 +28,22 @@ class TestBasicFunctionality:
     def test_pytorch_cuda(self):
         """Test PyTorch CUDA availability."""
         import torch
-        # This test passes whether CUDA is available or not
         assert isinstance(torch.cuda.is_available(), bool)
 
-    def test_cirq_basic(self):
-        """Test basic Cirq functionality."""
-        import cirq
-        
-        # Create a simple circuit
-        qubits = cirq.LineQubit.range(2)
-        circuit = cirq.Circuit()
-        circuit.append(cirq.H(qubits[0]))
-        circuit.append(cirq.CNOT(qubits[0], qubits[1]))
-        
-        # Verify circuit has gates
-        assert len(circuit) == 2
-        assert len(list(circuit.all_qubits())) == 2
+    def test_braket_basic(self):
+        """Test basic Amazon Braket functionality."""
+        from braket.circuits import Circuit
+
+        circuit = Circuit()
+        circuit.h(0)
+        circuit.cnot(0, 1)
+
+        assert len(circuit.instructions) > 0
 
     def test_numpy_basic(self):
         """Test basic NumPy functionality."""
         import numpy as np
-        
-        # Test basic operations
+
         arr = np.array([1, 2, 3, 4])
         assert arr.sum() == 10
         assert arr.mean() == pytest.approx(2.5)
@@ -70,13 +64,11 @@ class TestBasicFunctionality:
 
     def test_project_structure(self, project_root):
         """Test that project structure is correct."""
-        # Check main directories exist
         assert (project_root / "src").exists()
         assert (project_root / "tests").exists()
         assert (project_root / "docs").exists()
         assert (project_root / "memory-bank").exists()
-        
-        # Check main files exist
+
         assert (project_root / "README.md").exists()
         assert (project_root / "requirements.txt").exists()
         assert (project_root / "pyproject.toml").exists()
@@ -84,7 +76,6 @@ class TestBasicFunctionality:
 
     def test_src_structure(self, src_path):
         """Test that src directory structure is correct."""
-        # Check main source directories exist
         expected_dirs = ["rag", "agents", "orchestration", "evaluation", "cli"]
         for dir_name in expected_dirs:
             assert (src_path / dir_name).exists(), f"Missing directory: {dir_name}"

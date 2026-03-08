@@ -1,13 +1,13 @@
 # Data Directory
 
-This directory contains all data files for the Cirq-RAG-Code-Assistant project.
+This directory contains all data files for the Braket-RAG-Code-Assistant project.
 
 ## 📁 Structure
 
 ```
 data/
 ├── datasets/          # Training and evaluation datasets
-├── knowledge_base/    # Curated Cirq code snippets and documentation
+├── knowledge_base/    # Curated Braket code snippets and documentation
 ├── models/            # Pre-trained models and embeddings
 └── README.md          # This file
 ```
@@ -25,7 +25,7 @@ The `datasets/` directory contains:
 
 The `knowledge_base/` directory contains:
 
-- **Curated Cirq code snippets** with high-quality implementations
+- **Curated Braket code snippets** with high-quality implementations
 - **Natural language descriptions** for each code example
 - **Educational explanations** and step-by-step breakdowns
 - **Algorithm templates** for common quantum algorithms

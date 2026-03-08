@@ -5,7 +5,7 @@ import io
 import traceback
 import contextlib
 
-# Add src to path just in case, though KB examples usually import cirq directly
+# Add src to path just in case, though KB examples usually import braket directly
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 KB_PATH = "data/knowledge_base/curated_designer_examples.jsonl"
@@ -36,17 +36,14 @@ def validate_knowledge_base():
                     print(f"Skipping {entry_id}: No code found")
                     continue
                 
-                # Check for known bad imports before running for faster feedback
-                if "cirq.contrib.qaoa" in code:
-                     print(f"WARN {entry_id}: Contains 'cirq.contrib.qaoa' (Known deprecated)")
+                if "braket.circuits" in code and "from braket" not in code:
+                     print(f"WARN {entry_id}: Contains suspicious braket import")
                      
                 print(f"Testing {entry_id}...", end=" ", flush=True)
                 
-                # Capture output to avoid clutter
                 output_buffer = io.StringIO()
                 with contextlib.redirect_stdout(output_buffer), contextlib.redirect_stderr(output_buffer):
                     try:
-                        # Execute in a restricted but useful namespace
                         exec_globals = {}
                         exec(code, exec_globals)
                         print("PASS")
@@ -76,7 +73,6 @@ def validate_knowledge_base():
         for fail in failures:
             print(f"\n--- {fail['id']} ---")
             print(f"Error: {fail['error']}")
-            # Only show compilation modules missing errors usually
             if "ModuleNotFoundError" in fail['error'] or "ImportError" in fail['error']:
                  print("Reason: Missing or deprecated module")
 

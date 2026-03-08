@@ -36,8 +36,8 @@ Links to other modules:
 
 from abc import ABC, abstractmethod
 from typing import Dict, Any, Optional, List
-from ..cirq_rag_code_assistant.config import get_config
-from ..cirq_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.config import get_config
+from ..braket_rag_code_assistant.config.logging import get_logger
 
 logger = get_logger(__name__)
 

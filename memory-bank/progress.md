@@ -2,7 +2,7 @@
 
 ## What Works (Complete Implementation)
 - ✅ **Full Multi-Agent Pipeline**: Designer → Validator → Optimizer → Final Validator → Educational
-- ✅ **RAG System**: 140+ curated Cirq entries with FAISS vector search using BAAI/bge-base-en-v1.5 embeddings
+- ✅ **RAG System**: 140+ curated Braket entries with FAISS vector search using BAAI/bge-base-en-v1.5 embeddings
 - ✅ **Agent Implementations**: All four agents fully implemented with self-correction loops and RAG integration
 - ✅ **Evaluation Framework**: Benchmark suite, metrics collector, ablation studies with comprehensive results
 - ✅ **Research Paper**: Complete Springer LNCS format paper with methodology, results, and analysis

@@ -2,14 +2,13 @@
 Multi-Agent System Module
 
 This module implements the multi-agent architecture for the
-Cirq-RAG-Code-Assistant. It includes specialized agents for
+Braket-RAG-Code-Assistant. It includes specialized agents for
 code generation, optimization, validation, and education.
 
 Author: Umer Farooq, Hussain Waseem Syed, Muhammad Irtaza Khan
 Email: umerfarooqcs0891@gmail.com
 """
 
-# This file will export all agent classes
 from .base_agent import BaseAgent
 from .designer import DesignerAgent
 from .optimizer import OptimizerAgent
@@ -23,4 +22,3 @@ __all__ = [
     "ValidatorAgent",
     "EducationalAgent",
 ]
-

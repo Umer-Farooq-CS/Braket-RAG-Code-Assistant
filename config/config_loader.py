@@ -21,7 +21,7 @@ _project_root = _config_dir.parent
 sys.path.insert(0, str(_project_root))
 
 try:
-    from src.cirq_rag_code_assistant.config.logging import get_logger
+    from src.braket_rag_code_assistant.config.logging import get_logger
     logger_available = True
 except ImportError:
     # Fallback logger if logging not available
@@ -118,7 +118,7 @@ class ConfigLoader:
         """Get default configuration."""
         return {
             "app": {
-                "name": "Cirq-RAG-Code-Assistant",
+                "name": "Braket-RAG-Code-Assistant",
                 "version": "0.1.0",
                 "debug": False,
                 "environment": "development"
@@ -155,7 +155,7 @@ class ConfigLoader:
             },
             "logging": {
                 "log_level": "INFO",
-                "log_file": "outputs/logs/cirq_rag.log"
+                "log_file": "outputs/logs/braket_rag.log"
             }
         }
     

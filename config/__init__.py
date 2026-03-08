@@ -1,5 +1,5 @@
 """
-Configuration package for Cirq-RAG-Code-Assistant.
+Configuration package for Braket-RAG-Code-Assistant.
 
 This package provides access to the configuration system.
 """

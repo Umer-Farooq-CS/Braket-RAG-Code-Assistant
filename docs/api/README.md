@@ -2,7 +2,7 @@
 
 ## 🌐 REST API Reference
 
-The Cirq-RAG-Code-Assistant provides a comprehensive REST API for programmatic access to all system capabilities.
+The Braket-RAG-Code-Assistant provides a comprehensive REST API for programmatic access to all system capabilities.
 
 ## 🚀 Getting Started
 
@@ -16,7 +16,7 @@ Currently, the API uses API key authentication:
 
 ```bash
 # Set your API key
-export CIRQ_RAG_API_KEY=your_api_key_here
+export BRAKET_RAG_API_KEY=your_api_key_here
 
 # Or include in requests
 curl -H "Authorization: Bearer your_api_key_here" \
@@ -59,7 +59,7 @@ curl -X GET http://localhost:8000/api/v1/health
 ### 2. Code Generation
 
 #### POST /generate
-Generate Cirq code from natural language description.
+Generate Braket code from natural language description.
 
 **Request:**
 ```bash
@@ -109,7 +109,7 @@ curl -X POST http://localhost:8000/api/v1/generate \
   "success": true,
   "request_id": "req_123456789",
   "result": {
-    "code": "import cirq\nimport numpy as np\n...",
+    "code": "from braket.circuits import Circuit\nimport numpy as np\n...",
     "explanation": {
       "overview": "This VQE circuit implements...",
       "steps": [
@@ -117,7 +117,7 @@ curl -X POST http://localhost:8000/api/v1/generate \
           "number": 1,
           "title": "Initialize qubits",
           "description": "Create 4 qubits for the H2 molecule",
-          "code": "qubits = cirq.LineQubit.range(4)"
+          "code": "qubits = range(4)"
         }
       ],
       "concepts": ["VQE", "Variational circuits", "Quantum chemistry"]
@@ -157,7 +157,7 @@ Optimize an existing quantum circuit.
 curl -X POST http://localhost:8000/api/v1/optimize \
   -H "Content-Type: application/json" \
   -d '{
-    "code": "import cirq\nqubits = cirq.LineQubit.range(4)\n...",
+    "code": "from braket.circuits import Circuit\nqubits = range(4)\n...",
     "target_metrics": ["depth", "gate_count"],
     "optimization_level": "aggressive",
     "hardware_constraints": {
@@ -186,7 +186,7 @@ curl -X POST http://localhost:8000/api/v1/optimize \
     "gate_count_improvement": 28.9,
     "two_qubit_improvement": 33.3
   },
-  "optimized_code": "import cirq\n# Optimized version...",
+  "optimized_code": "from braket.circuits import Circuit\n# Optimized version...",
   "optimization_time": "0.8s"
 }
 ```
@@ -201,7 +201,7 @@ Validate quantum circuit code.
 curl -X POST http://localhost:8000/api/v1/validate \
   -H "Content-Type: application/json" \
   -d '{
-    "code": "import cirq\nqubits = cirq.LineQubit.range(4)\n...",
+    "code": "from braket.circuits import Circuit\nqubits = range(4)\n...",
     "validation_level": "comprehensive",
     "include_simulation": true
   }'
@@ -283,7 +283,7 @@ curl -X POST http://localhost:8000/api/v1/explain \
       {
         "title": "H2 Molecule",
         "description": "Simple 2-qubit VQE example",
-        "code": "import cirq\n# H2 VQE example..."
+        "code": "from braket.circuits import Circuit\n# H2 VQE example..."
       }
     ],
     "learning_resources": [
@@ -385,15 +385,15 @@ Get detailed system status.
 
 ### Installation
 ```bash
-pip install cirq-rag-code-assistant
+pip install braket-rag-code-assistant
 ```
 
 ### Basic Usage
 ```python
-from cirq_rag_code_assistant import CirqRAGClient
+from braket_rag_code_assistant import BraketRAGClient
 
 # Initialize client
-client = CirqRAGClient(
+client = BraketRAGClient(
     base_url="http://localhost:8000/api/v1",
     api_key="your_api_key_here"
 )
@@ -511,7 +511,7 @@ curl -H "Authorization: Bearer your_api_key_here" \
 
 ### Python SDK
 ```python
-client = CirqRAGClient(
+client = BraketRAGClient(
     base_url="http://localhost:8000/api/v1",
     api_key="your_api_key_here"
 )

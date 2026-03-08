@@ -2,7 +2,7 @@
 Validator Agent Module
 
 This module implements the Validator Agent, responsible for testing,
-validating, and ensuring quality of generated Cirq code.
+validating, and ensuring quality of generated Braket code.
 
 Supports two modes:
 - local: Uses local compiler/simulator (original behavior)
@@ -19,13 +19,13 @@ import re
 import requests
 from typing import Dict, Any, Optional, List
 from .base_agent import BaseAgent
-from ..tools.compiler import CirqCompiler
+from ..tools.compiler import BraketCompiler
 from ..tools.simulator import QuantumSimulator
 from ..tools.analyzer import CircuitAnalyzer
 from ..tools.qcanvas_client import QCanvasClient
 from ..rag.retriever import Retriever
-from ..cirq_rag_code_assistant.config import get_config
-from ..cirq_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.config import get_config
+from ..braket_rag_code_assistant.config.logging import get_logger
 
 logger = get_logger(__name__)
 
@@ -35,7 +35,7 @@ class ValidatorAgent(BaseAgent):
     Validates and tests quantum circuits with RAG-enhanced semantic validation.
     
     Supports local and remote validation modes:
-    - local: Uses CirqCompiler, QuantumSimulator, CircuitAnalyzer
+    - local: Uses BraketCompiler, QuantumSimulator, CircuitAnalyzer
     - remote: Uses QCanvas backend API + LLM for intelligent code fixing
     
     RAG Features:
@@ -48,7 +48,7 @@ class ValidatorAgent(BaseAgent):
         self,
         mode: Optional[str] = None,
         retriever: Optional[Retriever] = None,
-        compiler: Optional[CirqCompiler] = None,
+        compiler: Optional[BraketCompiler] = None,
         simulator: Optional[QuantumSimulator] = None,
         analyzer: Optional[CircuitAnalyzer] = None,
         ollama_model: Optional[str] = None,
@@ -59,33 +59,29 @@ class ValidatorAgent(BaseAgent):
         Args:
             mode: Validation mode ("local" or "remote"). Defaults to config value.
             retriever: Retriever instance for RAG-based semantic validation (required)
-            compiler: CirqCompiler instance (for local mode)
+            compiler: BraketCompiler instance (for local mode)
             simulator: QuantumSimulator instance (for local mode)
             analyzer: CircuitAnalyzer instance (for local mode)
             ollama_model: Ollama model name for LLM fixing (for remote mode)
         """
         super().__init__(name="ValidatorAgent")
         
-        # RAG retriever (mandatory for semantic validation)
         self.retriever = retriever
         if not retriever:
             logger.warning("ValidatorAgent initialized without retriever - semantic validation disabled")
         
-        # Load config
         config = get_config()
         self.mode = mode or config.get("agents.validator.mode", "local")
         self.llm_enabled = config.get("agents.validator.llm_enabled", True)
         self.default_shots = config.get("agents.validator.default_shots", 1024)
-        self.default_backend = config.get("agents.validator.default_backend", "cirq")
-        self.ollama_model = ollama_model or config.get("agents.validator.model.model", "cirq-validator-agent")
+        self.default_backend = config.get("agents.validator.default_backend", "braket")
+        self.ollama_model = ollama_model or config.get("agents.validator.model.model", "braket-validator-agent")
         self.ollama_url = config.get("models.ollama_url", "http://localhost:11434")
         
-        # Semantic validation settings
-        self.semantic_tolerance_percent = 15  # Default 15% tolerance for noise
+        self.semantic_tolerance_percent = 15
         
-        # Initialize components based on mode
         if self.mode == "local":
-            self.compiler = compiler or CirqCompiler()
+            self.compiler = compiler or BraketCompiler()
             self.simulator = simulator or QuantumSimulator()
             self.analyzer = analyzer or CircuitAnalyzer()
         else:
@@ -95,14 +91,14 @@ class ValidatorAgent(BaseAgent):
     
     def execute(self, task: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Validate Cirq code with RAG-enhanced semantic validation and self-correction loop.
+        Validate Braket code with RAG-enhanced semantic validation and self-correction loop.
         
         Self-Correction: If validation fails, validator uses LLM to fix code and retries
         up to 3 times before giving up.
         
         Args:
             task: Task dictionary with:
-                - code: str - The Cirq code to validate
+                - code: str - The Braket code to validate
                 - algorithm: str (optional) - Algorithm type for RAG lookup
                 - query: str (optional) - Original query for context
                 - description: str (optional) - What the code should do
@@ -120,19 +116,16 @@ class ValidatorAgent(BaseAgent):
             if attempt == 1:
                 logger.info(f"Validating code (attempt {attempt}/{max_validation_retries})...")
             else:
-                logger.info(f"🔄 Re-validating fixed code (attempt {attempt}/{max_validation_retries})...")
+                logger.info(f"Re-validating fixed code (attempt {attempt}/{max_validation_retries})...")
             
-            # Create task for this attempt with current code
             attempt_task = task.copy()
             attempt_task["code"] = current_code
             
-            # Run validation (local or remote)
             if self.mode == "remote":
                 result = self._execute_remote(attempt_task)
             else:
                 result = self._execute_local(attempt_task)
             
-            # Add RAG-based semantic validation if retriever is available
             if self.retriever and result.get("success"):
                 semantic_result = self._validate_semantics(
                     code=current_code,
@@ -141,44 +134,36 @@ class ValidatorAgent(BaseAgent):
                 )
                 result["semantic_validation"] = semantic_result
                 
-                # Update validation_passed based on semantic check
                 if not semantic_result.get("semantic_valid", True):
                     if semantic_result.get("confidence", 0) >= 0.7:
-                        # High confidence semantic failure - warn but don't fail completely
                         result["semantic_warnings"] = semantic_result.get("issues", [])
                         logger.warning(f"Semantic validation warnings: {semantic_result.get('issues')}")
             
-            # Check if validation passed
             validation_passed = result.get("validation_passed", False)
             
             if validation_passed:
-                logger.info(f"✅ Validation passed on attempt {attempt}")
+                logger.info(f"Validation passed on attempt {attempt}")
                 result["validation_attempts"] = attempt
                 return result
             
-            # Validation failed - try to fix with LLM if not last attempt
             if attempt < max_validation_retries:
                 if result.get("fixed_code") or result.get("llm_analysis", {}).get("fixed_code"):
-                    # LLM already generated a fix
                     fixed_code = result.get("fixed_code") or result["llm_analysis"]["fixed_code"]
-                    logger.info(f"💡 Using LLM-fixed code for retry...")
+                    logger.info(f"Using LLM-fixed code for retry...")
                     current_code = fixed_code
                 else:
-                    logger.warning(f"⚠️ No LLM fix available, retrying with same code...")
+                    logger.warning(f"No LLM fix available, retrying with same code...")
             else:
-                logger.warning(f"❌ Validation failed after {max_validation_retries} attempts")
+                logger.warning(f"Validation failed after {max_validation_retries} attempts")
                 result["validation_attempts"] = attempt
                 return result
         
-        # Should not reach here, but just in case
         return result
     
     def _extract_counts(self, result: Dict[str, Any]) -> Optional[Dict[str, int]]:
         """Extract measurement counts from validation result."""
-        # From local simulation
         if result.get("simulation") and result["simulation"].get("histogram"):
             return result["simulation"]["histogram"]
-        # From remote execution
         if result.get("results") and result["results"].get("counts"):
             return result["results"]["counts"]
         return None
@@ -193,31 +178,17 @@ class ValidatorAgent(BaseAgent):
         Validate circuit semantics using RAG references.
         
         Compares simulation output against known-good examples with noise tolerance.
-        
-        Args:
-            code: The Cirq code being validated
-            algorithm: Algorithm type (e.g., "bell_state", "grover")
-            simulation_counts: Measurement counts from simulation
-            
-        Returns:
-            Dictionary with semantic validation results
         """
         if not self.retriever:
             return {"semantic_valid": True, "confidence": 0.0, "message": "No retriever available"}
         
-        # Build query for validation references
         query_parts = ["validate", "circuit", "expected", "output"]
         if algorithm:
             query_parts.insert(1, algorithm)
         query = " ".join(query_parts)
         
         try:
-            # Retrieve validation references
-            references = self.retriever.retrieve(
-                query=query,
-                top_k=3,
-                # Filter for validation examples
-            )
+            references = self.retriever.retrieve(query=query, top_k=3)
             
             if not references:
                 logger.debug("No validation references found")
@@ -227,7 +198,6 @@ class ValidatorAgent(BaseAgent):
                     "message": "No reference examples found for comparison"
                 }
             
-            # Find best matching reference
             best_match = None
             best_score = 0
             
@@ -235,7 +205,6 @@ class ValidatorAgent(BaseAgent):
                 entry = ref.get("entry", {})
                 ref_algorithm = entry.get("algorithm", "")
                 
-                # Check algorithm match
                 if algorithm and ref_algorithm.lower() == algorithm.lower():
                     if ref["score"] > best_score:
                         best_match = entry
@@ -251,7 +220,6 @@ class ValidatorAgent(BaseAgent):
                     "message": "No matching reference found"
                 }
             
-            # Compare simulation counts if available
             if simulation_counts and best_match.get("acceptable_ranges"):
                 return self._check_output_tolerance(
                     actual_counts=simulation_counts,
@@ -260,7 +228,6 @@ class ValidatorAgent(BaseAgent):
                     reference_id=best_match.get("id", "unknown")
                 )
             
-            # Code structure comparison (if no simulation available)
             return self._check_code_structure(code, best_match)
             
         except Exception as e:
@@ -278,32 +245,18 @@ class ValidatorAgent(BaseAgent):
         validation_rules: List[str],
         reference_id: str,
     ) -> Dict[str, Any]:
-        """
-        Check if simulation output is within acceptable tolerance ranges.
-        
-        Args:
-            actual_counts: Actual measurement counts (e.g., {"00": 512, "11": 512})
-            acceptable_ranges: Expected ranges (e.g., {"00": {"min": 460, "max": 564}})
-            validation_rules: Human-readable validation rules
-            reference_id: ID of reference being compared against
-            
-        Returns:
-            Semantic validation result
-        """
+        """Check if simulation output is within acceptable tolerance ranges."""
         issues = []
         passed_checks = 0
         total_checks = 0
         
-        # Normalize count keys (handle int keys from some simulators)
         normalized_counts = {}
         for k, v in actual_counts.items():
             key_str = format(int(k), 'b') if isinstance(k, int) else str(k)
             normalized_counts[key_str] = v
         
-        # Check each expected range
         for state, range_spec in acceptable_ranges.items():
             if state == "all_states":
-                # Special case: all states should be within range
                 for count_state, count_val in normalized_counts.items():
                     total_checks += 1
                     min_val = range_spec.get("min", 0)
@@ -323,9 +276,8 @@ class ValidatorAgent(BaseAgent):
                 else:
                     issues.append(f"State '{state}': got {actual_val}, expected [{min_val}, {max_val}]")
         
-        # Calculate pass rate
         pass_rate = passed_checks / max(total_checks, 1)
-        semantic_valid = pass_rate >= 0.7  # 70% of checks must pass
+        semantic_valid = pass_rate >= 0.7
         
         return {
             "semantic_valid": semantic_valid,
@@ -343,37 +295,25 @@ class ValidatorAgent(BaseAgent):
         code: str,
         reference: Dict[str, Any],
     ) -> Dict[str, Any]:
-        """
-        Compare code structure against reference when simulation isn't available.
-        
-        Args:
-            code: The code being validated
-            reference: Reference entry from knowledge base
-            
-        Returns:
-            Semantic validation result
-        """
+        """Compare code structure against reference when simulation isn't available."""
         issues = []
         code_lower = code.lower()
         
-        # Check for common errors mentioned in reference
         common_errors = reference.get("common_errors", [])
         for error in common_errors:
-            # Simple heuristic checks
-            if "missing hadamard" in error.lower() and "cirq.h" not in code_lower:
+            if "missing hadamard" in error.lower() and ".h(" not in code_lower:
                 issues.append("Possible missing Hadamard gate")
-            if "missing x gate" in error.lower() and "cirq.x" not in code_lower:
+            if "missing x gate" in error.lower() and ".x(" not in code_lower:
                 issues.append("Possible missing X gate")
         
-        # Check for expected gates based on algorithm
         algorithm = reference.get("algorithm", "")
         if algorithm == "bell_state":
-            if "cirq.h" not in code_lower:
+            if ".h(" not in code_lower:
                 issues.append("Bell state should have Hadamard gate")
-            if "cnot" not in code_lower and "cx" not in code_lower:
+            if ".cnot(" not in code_lower and ".cx(" not in code_lower:
                 issues.append("Bell state should have CNOT gate")
         elif algorithm == "grover":
-            if "cz" not in code_lower and "ccz" not in code_lower:
+            if ".cz(" not in code_lower and ".ccnot(" not in code_lower:
                 issues.append("Grover's algorithm should have controlled-Z for oracle/diffuser")
         
         semantic_valid = len(issues) == 0
@@ -400,20 +340,17 @@ class ValidatorAgent(BaseAgent):
             }
         
         try:
-            # Step 1: Execute via QCanvas
             exec_result = self.qcanvas_client.validate_and_execute(
                 code=code,
                 shots=shots,
                 backend=self.default_backend
             )
             
-            # Step 2: Analyze with LLM if failed or requested
             if self.llm_enabled and (not exec_result["success"] or task.get("force_llm_fix")):
                 llm_result = self.fix_code_with_llm(code, description, exec_result)
                 exec_result["llm_analysis"] = llm_result
                 exec_result["fixed_code"] = llm_result.get("fixed_code")
             
-            # Add validation status
             exec_result["validation_passed"] = exec_result.get("success", False)
             
             return exec_result
@@ -427,7 +364,7 @@ class ValidatorAgent(BaseAgent):
             }
     
     def _execute_local(self, task: Dict[str, Any]) -> Dict[str, Any]:
-        """Execute validation using local compiler/simulator (original behavior)."""
+        """Execute validation using local compiler/simulator."""
         code = task.get("code", "")
         validation_level = task.get("validation_level", "comprehensive")
         
@@ -438,11 +375,9 @@ class ValidatorAgent(BaseAgent):
             }
         
         try:
-            # Compile and validate syntax
             compilation = self.compiler.compile(code, execute=True)
             
             if not compilation["success"]:
-                # Compilation failed - run LLM fix before returning
                 result = {
                     "success": False,
                     "validation_passed": False,
@@ -452,7 +387,6 @@ class ValidatorAgent(BaseAgent):
                     "error": compilation.get("errors", ["Compilation failed"])[0] if compilation.get("errors") else "Compilation failed",
                 }
                 
-                # Run LLM fix for compilation errors
                 if self.llm_enabled:
                     description = task.get("description", "")
                     exec_result = {
@@ -476,7 +410,6 @@ class ValidatorAgent(BaseAgent):
                     "error": "No circuit found in code",
                 }
                 
-                # Run LLM fix
                 if self.llm_enabled:
                     description = task.get("description", "")
                     exec_result = {
@@ -491,37 +424,29 @@ class ValidatorAgent(BaseAgent):
                 
                 return result
             
-            # Validate circuit structure
             circuit_validation = self.compiler.validate_circuit(circuit)
-            
-            # Analyze circuit
             analysis = self.analyzer.analyze(circuit)
             
-            # Run simulation if comprehensive validation
             simulation_result = None
-            simulation_success = True  # Track if simulation actually succeeded
+            simulation_success = True
             
             if validation_level == "comprehensive":
                 simulation_result = self.simulator.simulate(circuit, repetitions=self.default_shots)
                 simulation_success = simulation_result.get("success", False)
                 
-                # If simulation failed, log the error
                 if not simulation_success:
                     sim_error = simulation_result.get("error", "Unknown simulation error")
                     logger.warning(f"Simulation failed: {sim_error}")
             
-            # Determine overall validation status
-            # Validation passes ONLY if compilation, circuit validation, AND simulation all succeed
             validation_passed = (
                 compilation["success"] and
                 circuit_validation["valid"] and
                 simulation_success
             )
             
-            # Format result to match remote mode structure for notebook compatibility
             result = {
-                "success": True,  # Request succeeded (validator ran)
-                "validation_passed": validation_passed,  # Code validation status
+                "success": True,
+                "validation_passed": validation_passed,
                 "stage": "simulation" if simulation_success else "simulation_failed",
                 "compilation": compilation,
                 "circuit_validation": circuit_validation,
@@ -530,20 +455,18 @@ class ValidatorAgent(BaseAgent):
                 "errors": compilation.get("errors", []) + circuit_validation.get("errors", []),
             }
             
-            # Add simulation error to errors list if failed
             if simulation_result and not simulation_success:
                 sim_error = simulation_result.get("error", "Simulation failed")
                 result["errors"].append(sim_error)
-                result["error"] = sim_error  # Also add top-level error for notebook
+                result["error"] = sim_error
             
-            # Add results dict with counts (like remote mode) for notebook compatibility
             if simulation_result and simulation_result.get("histogram"):
                 result["results"] = {
                     "counts": simulation_result["histogram"],
-                    "probs": None,  # Can be calculated if needed
+                    "probs": None,
                     "metadata": {
                         "execution_time": f"{simulation_result.get('execution_time', 0) * 1000:.2f}ms",
-                        "backend": "cirq_local",
+                        "backend": "braket_local",
                         "shots": self.default_shots,
                     }
                 }
@@ -553,12 +476,9 @@ class ValidatorAgent(BaseAgent):
                     "probs": None,
                 }
             
-            # LLM analysis and fixing (like remote mode)
-            # Run LLM if validation failed OR force_llm_fix is True
             if self.llm_enabled and (not validation_passed or task.get("force_llm_fix")):
                 description = task.get("description", "")
                 
-                # Create exec_result format for LLM
                 exec_result = {
                     "success": validation_passed,
                     "stage": result["stage"],
@@ -592,15 +512,12 @@ class ValidatorAgent(BaseAgent):
         Use LLM to analyze execution results and fix the code.
         
         Args:
-            code: Original Cirq code
+            code: Original Braket code
             description: What the code should do
-            exec_result: Execution result from QCanvas
+            exec_result: Execution result
             
         Returns:
-            Dictionary with:
-                - fixed_code: str - The corrected code
-                - analysis: str - Explanation of the fix
-                - success: bool - Whether LLM call succeeded
+            Dictionary with fixed_code, analysis, success
         """
         prompt = self._format_llm_prompt(code, description, exec_result)
         
@@ -634,7 +551,6 @@ class ValidatorAgent(BaseAgent):
             probs = results.get("probs", {})
             results_info = f"\n\n**SIMULATION RESULTS:**\nCounts: {counts}\nProbabilities: {probs}"
         
-        # Add specific guidance for circuit detection errors
         stage = exec_result.get("stage", "unknown")
         error = exec_result.get("error", "")
         circuit_detection_guidance = ""
@@ -643,7 +559,7 @@ class ValidatorAgent(BaseAgent):
             circuit_detection_guidance = """
 
 **CRITICAL FIXING INSTRUCTIONS FOR CIRCUIT DETECTION ERROR:**
-1. The code must create a circuit variable in the global namespace (e.g., `circuit = cirq.Circuit(...)`)
+1. The code must create a circuit variable in the global namespace (e.g., `circuit = Circuit()`)
 2. If the code defines a function that returns a circuit, you MUST call that function and assign the result to a variable named `circuit`
 3. For VQE patterns: If you have a function like `vqe_ansatz(theta)`, call it and assign: `circuit = vqe_ansatz([0.0, 0.0])` or similar
 4. The circuit variable must be accessible after code execution, not just inside a function
@@ -651,31 +567,28 @@ class ValidatorAgent(BaseAgent):
 
 Example fix pattern:
 ```python
-# If code has:
-def create_circuit():
-    return cirq.Circuit(...)
+from braket.circuits import Circuit
 
-# Fix to:
 def create_circuit():
-    return cirq.Circuit(...)
+    c = Circuit()
+    c.h(0).cnot(0, 1)
+    return c
 
-circuit = create_circuit()  # Add this line
+circuit = create_circuit()
 ```
 """
         
-        # Add QAOA-specific guidance
         qaoa_guidance = ""
         if "qaoa" in description.lower() or "qaoa" in code.lower():
             qaoa_guidance = """
 
 **QAOA-SPECIFIC CONSTRAINTS:**
-- NEVER import or use cirq.contrib.qaoa - this module does NOT exist
-- Build QAOA manually using cirq.ZZ gates for problem Hamiltonian
-- Use cirq.rx rotations for mixer Hamiltonian
-- Use np.pi in ZZ exponents: cirq.ZZ(qubits[u], qubits[v]) ** (-2 * gamma / np.pi)
+- Use Amazon Braket SDK for QAOA circuits
+- Build QAOA manually using circuit.zz(q1, q2, angle) for problem Hamiltonian
+- Use circuit.rx(qubit, angle) for mixer Hamiltonian
 """
         
-        prompt = f"""**ORIGINAL CIRQ CODE:**
+        prompt = f"""**ORIGINAL BRAKET CODE:**
 ```python
 {code}
 ```
@@ -690,7 +603,7 @@ Please analyze this code and its execution results. If there are issues, provide
 1. Fixes all compilation and execution errors
 2. Creates a circuit variable in the global namespace
 3. Is fully executable and can be validated
-4. Follows Cirq best practices
+4. Follows Amazon Braket best practices
 
 Return the fixed code in a markdown code block."""
         
@@ -721,16 +634,7 @@ Return the fixed code in a markdown code block."""
             raise Exception(f"Cannot connect to Ollama at {self.ollama_url}")
     
     def _parse_llm_response(self, response: str) -> Dict[str, Any]:
-        """
-        Parse the LLM response to extract fixed code and analysis.
-        
-        Expected format:
-        ```python
-        # Fixed code here
-        ```
-        
-        Analysis text here explaining the fix.
-        """
+        """Parse the LLM response to extract fixed code and analysis."""
         result = {
             "success": True,
             "fixed_code": None,
@@ -738,20 +642,17 @@ Return the fixed code in a markdown code block."""
             "raw_response": response
         }
         
-        # Extract code block using regex
         code_pattern = r'```(?:python)?\s*\n(.*?)\n```'
         code_match = re.search(code_pattern, response, re.DOTALL)
         
         if code_match:
             result["fixed_code"] = code_match.group(1).strip()
             
-            # Get analysis (text after the code block)
             code_end = code_match.end()
             analysis = response[code_end:].strip()
             if analysis:
                 result["analysis"] = analysis
         else:
-            # No code block found, treat entire response as analysis
             result["analysis"] = response.strip()
             result["success"] = False
         

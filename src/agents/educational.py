@@ -14,8 +14,8 @@ import os
 from .base_agent import BaseAgent
 from ..rag.retriever import Retriever
 from ..tools.analyzer import CircuitAnalyzer
-from ..cirq_rag_code_assistant.config import get_config
-from ..cirq_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.config import get_config
+from ..braket_rag_code_assistant.config.logging import get_logger
 
 try:
     from openai import OpenAI
@@ -35,7 +35,6 @@ logger = get_logger(__name__)
 class EducationalAgent(BaseAgent):
     """Provides educational explanations and learning materials."""
     
-    # Depth-specific prompt templates - Output format: Markdown
     PROMPT_LOW = """Explain this quantum code in the simplest way possible for someone who has never seen quantum computing.
 
 CODE:
@@ -63,7 +62,7 @@ Format your response EXACTLY like this:
 - **[Concept]**: [one sentence simple explanation with analogy]
 """
 
-    PROMPT_INTERMEDIATE = """Explain this Cirq quantum circuit for someone learning quantum computing.
+    PROMPT_INTERMEDIATE = """Explain this Amazon Braket quantum circuit for someone learning quantum computing.
 
 CODE:
 {code}
@@ -96,7 +95,7 @@ Format your response EXACTLY like this:
 [Brief paragraph about how the code is organized]
 """
 
-    PROMPT_HIGH = """Provide a detailed technical explanation of this Cirq quantum circuit.
+    PROMPT_HIGH = """Provide a detailed technical explanation of this Amazon Braket quantum circuit.
 
 CODE:
 {code}
@@ -120,7 +119,7 @@ Format your response EXACTLY like this:
 ## Detailed Step-by-Step Analysis
 1. **`[code]`**
    - *What it does*: [technical explanation]
-   - *State after*: [describe quantum state, e.g., |ψ⟩ = ...]
+   - *State after*: [describe quantum state, e.g., |psi> = ...]
    - *Why this gate*: [reasoning]
 
 [Continue for each line]
@@ -164,9 +163,9 @@ For each operation, show the full state transformation:
 
 ### Step 1: [Operation]
 - **Code**: `[code line]`
-- **Initial state**: |ψ₀⟩ = [state]
+- **Initial state**: |psi_0> = [state]
 - **Operator**: [matrix or gate description]
-- **Final state**: |ψ₁⟩ = [resulting state]
+- **Final state**: |psi_1> = [resulting state]
 - **Physical interpretation**: [what this means]
 
 [Continue for all operations]
@@ -220,26 +219,21 @@ For each operation, show the full state transformation:
         self.retriever = retriever
         self.analyzer = analyzer or CircuitAnalyzer()
         
-        # Load LLM config from educational agent config
         cfg = get_config()
         edu_model_cfg = cfg.get("agents", {}).get("educational", {}).get("model", {})
         
-        # Use educational model config
         self.model = model or edu_model_cfg.get("model", "gpt-4")
         self.provider = (provider or edu_model_cfg.get("provider", "openai")).lower()
         self.temperature = temperature if temperature is not None else edu_model_cfg.get("temperature", 0.2)
         
-        # Load additional LLM parameters from config
         self.max_tokens = edu_model_cfg.get("max_tokens", 2000)
         self.top_p = edu_model_cfg.get("top_p", 1.0)
         self.frequency_penalty = edu_model_cfg.get("frequency_penalty", 0.0)
         self.presence_penalty = edu_model_cfg.get("presence_penalty", 0.0)
         
-        # Log which config is being used
         logger.info(f"EducationalAgent using config from: agents.educational.model")
         logger.info(f"Model: {self.model}, Provider: {self.provider}")
         
-        # Initialize LLM client
         self._init_llm_client()
         
     def _init_llm_client(self):
@@ -280,12 +274,10 @@ For each operation, show the full state transformation:
             }
         
         try:
-            # Analyze circuit if provided
             analysis = None
             if circuit:
                 analysis = self.analyzer.analyze(circuit)
             
-            # Generate explanations using LLM
             explanations = self._generate_explanations(
                 code=code,
                 circuit=circuit,
@@ -294,7 +286,6 @@ For each operation, show the full state transformation:
                 algorithm=algorithm,
             )
             
-            # Retrieve learning materials
             learning_materials = self._retrieve_learning_materials(algorithm)
             
             return {
@@ -321,17 +312,14 @@ For each operation, show the full state transformation:
     ) -> Dict[str, Any]:
         """Generate educational explanations using LLM."""
         
-        # Prepare analysis text
         analysis_text = "No detailed analysis available."
         if analysis:
             metrics = analysis.get("metrics", {})
             analysis_text = f"Qubits: {metrics.get('num_qubits')}\nDepth: {metrics.get('depth')}\nOps: {metrics.get('num_operations')}"
 
-        # Select prompt based on depth level
         depth_normalized = depth.lower().replace(" ", "_").replace("-", "_")
         prompt_template = self._get_prompt_for_depth(depth_normalized)
         
-        # Build prompt
         prompt = prompt_template.format(
             code=code,
             analysis_text=analysis_text,
@@ -342,7 +330,6 @@ For each operation, show the full state transformation:
         try:
             response_text = self._call_llm(prompt)
             
-            # Return markdown response directly (no JSON parsing)
             return {
                 "markdown": response_text.strip(),
                 "depth": depth_normalized,
@@ -350,7 +337,6 @@ For each operation, show the full state transformation:
             
         except Exception as e:
             logger.error(f"Error generating explanations with LLM: {e}")
-            # Fallback to simple static generation
             return self._fallback_explanations(code, analysis, algorithm)
 
     def _call_llm(self, prompt: str) -> str:
@@ -361,8 +347,6 @@ For each operation, show the full state transformation:
                 "model": self.model,
                 "prompt": prompt,
                 "stream": False,
-                # No format specified - let model output markdown
-                # Options from Modelfile are used, but we can override if config has values
             }
             resp = requests.post(url, json=payload, timeout=180)
             resp.raise_for_status()
@@ -385,7 +369,6 @@ For each operation, show the full state transformation:
             return response.choices[0].message.content
             
         elif self.provider == "anthropic":
-            # Anthropic doesn't enforce JSON mode strictly like OpenAI, but we can ask for it
             response = self.client.messages.create(
                 model=self.model,
                 max_tokens=self.max_tokens,
@@ -416,7 +399,6 @@ For each operation, show the full state transformation:
         materials = []
         
         if algorithm:
-            # Retrieve relevant educational content
             query = f"{algorithm} algorithm tutorial explanation"
             results = self.retriever.retrieve(query, top_k=3)
             

@@ -1,11 +1,11 @@
-# Makefile for Cirq-RAG-Code-Assistant
+# Makefile for Braket-RAG-Code-Assistant
 # =====================================
 
 .PHONY: help install install-dev test lint format clean docs serve-docs build dist upload
 
 # Default target
 help: ## Show this help message
-	@echo "Cirq-RAG-Code-Assistant Makefile"
+	@echo "Braket-RAG-Code-Assistant Makefile"
 	@echo "================================"
 	@echo ""
 	@echo "Available targets:"
@@ -31,7 +31,7 @@ install-qcanvas: ## Install with QCanvas integration support (future enhancement
 
 # Development
 test: ## Run tests
-	pytest tests/ -v --cov=cirq_rag_code_assistant --cov-report=html --cov-report=term-missing
+	pytest tests/ -v --cov=braket_rag_code_assistant --cov-report=html --cov-report=term-missing
 
 test-unit: ## Run unit tests only
 	pytest tests/unit/ -v
@@ -81,7 +81,7 @@ serve-docs: ## Serve documentation locally
 	cd docs/_build/html && python -m http.server 8000
 
 docs-api: ## Generate API documentation
-	sphinx-apidoc -o docs/api src/cirq_rag_code_assistant
+	sphinx-apidoc -o docs/api src/braket_rag_code_assistant
 
 # Building (for development)
 build: ## Build the package for development
@@ -134,53 +134,53 @@ dev-server-debug: ## Start development server with debug mode (future enhancemen
 
 # CLI
 cli-help: ## Show CLI help
-	python -m cirq_rag_code_assistant.cli.main --help
+	python -m braket_rag_code_assistant.cli.main --help
 
 cli-test: ## Test CLI functionality
-	python -m cirq_rag_code_assistant.cli.main --version
+	python -m braket_rag_code_assistant.cli.main --version
 
 # Database
 db-init: ## Initialize database
-	python -m cirq_rag_code_assistant.db.init
+	python -m braket_rag_code_assistant.db.init
 
 db-migrate: ## Run database migrations
-	python -m cirq_rag_code_assistant.db.migrate
+	python -m braket_rag_code_assistant.db.migrate
 
 db-reset: ## Reset database
-	python -m cirq_rag_code_assistant.db.reset
+	python -m braket_rag_code_assistant.db.reset
 
 # Knowledge Base
 kb-init: ## Initialize knowledge base
-	python -m cirq_rag_code_assistant.rag.init_kb
+	python -m braket_rag_code_assistant.rag.init_kb
 
 kb-update: ## Update knowledge base
-	python -m cirq_rag_code_assistant.rag.update_kb
+	python -m braket_rag_code_assistant.rag.update_kb
 
 kb-rebuild: ## Rebuild knowledge base from scratch
-	python -m cirq_rag_code_assistant.rag.rebuild_kb
+	python -m braket_rag_code_assistant.rag.rebuild_kb
 
 # Agents
 agent-test: ## Test all agents
-	python -m cirq_rag_code_assistant.agents.test_all
+	python -m braket_rag_code_assistant.agents.test_all
 
 agent-designer: ## Test designer agent
-	python -m cirq_rag_code_assistant.agents.test_designer
+	python -m braket_rag_code_assistant.agents.test_designer
 
 agent-optimizer: ## Test optimizer agent
-	python -m cirq_rag_code_assistant.agents.test_optimizer
+	python -m braket_rag_code_assistant.agents.test_optimizer
 
 agent-validator: ## Test validator agent
-	python -m cirq_rag_code_assistant.agents.test_validator
+	python -m braket_rag_code_assistant.agents.test_validator
 
 agent-educational: ## Test educational agent
-	python -m cirq_rag_code_assistant.agents.test_educational
+	python -m braket_rag_code_assistant.agents.test_educational
 
 # Performance
 benchmark: ## Run performance benchmarks
-	python -m cirq_rag_code_assistant.evaluation.benchmark
+	python -m braket_rag_code_assistant.evaluation.benchmark
 
 profile: ## Run performance profiling
-	python -m cirq_rag_code_assistant.evaluation.profile
+	python -m braket_rag_code_assistant.evaluation.profile
 
 # Security
 security-check: ## Run security checks
@@ -218,7 +218,7 @@ git-hooks-update: ## Update git hooks
 
 # Development Testing
 dev-test: ## Run development tests
-	pytest tests/ --cov=cirq_rag_code_assistant --cov-report=xml --junitxml=test-results.xml
+	pytest tests/ --cov=braket_rag_code_assistant --cov-report=xml --junitxml=test-results.xml
 
 dev-lint: ## Run development linting
 	flake8 src/ tests/

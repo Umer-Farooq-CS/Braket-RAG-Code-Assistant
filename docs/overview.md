@@ -2,20 +2,20 @@
 
 ## 🎯 Mission Statement
 
-The Cirq-RAG-Code-Assistant is a research-grade system designed to integrate with QCanvas quantum simulator, providing intelligent code generation and educational support for Google's Cirq quantum computing framework with GPU optimization.
+The Braket-RAG-Code-Assistant is a research-grade system designed to integrate with QCanvas quantum simulator, providing intelligent code generation and educational support for Amazon's Braket quantum computing framework with GPU optimization.
 
 ## 🚀 Core Objectives
 
 ### Primary Goals
 1. **QCanvas Integration**: Seamlessly integrate with existing QCanvas quantum simulator
 2. **Educational Excellence**: Provide step-by-step explanations alongside generated code
-3. **Code Quality**: Generate syntactically correct, executable Cirq code
+3. **Code Quality**: Generate syntactically correct, executable Braket code
 4. **GPU Optimization**: Leverage PyTorch CUDA GPU for performance optimization
 5. **Validation & Testing**: Ensure generated code works through simulation and testing
 
 ### Target Users
 - **QCanvas Users** integrating with existing quantum simulator
-- **Students** learning quantum computing and Cirq programming
+- **Students** learning quantum computing and Braket programming
 - **Researchers** prototyping quantum algorithms and circuits
 - **Educators** teaching quantum computing concepts
 
@@ -53,19 +53,19 @@ graph TD
 ## 🧠 Key Components
 
 ### 1. RAG System
-- **Knowledge Base**: Curated Cirq code snippets, natural language descriptions, and educational explanations
+- **Knowledge Base**: Curated Braket code snippets, natural language descriptions, and educational explanations
 - **Vector Search**: Semantic similarity matching using sentence transformers
 - **Context Retrieval**: Relevant examples and patterns for code generation
 
 ### 2. Multi-Agent Pipeline
-- **Designer Agent** (Always): Generates initial Cirq code from natural language
+- **Designer Agent** (Always): Generates initial Braket code from natural language
 - **Validator Agent** (Conditional): Tests and validates generated code
 - **Optimizer Agent** (Conditional): Improves circuit efficiency, can loop with Validator
 - **Final Validator** (Always): Ensures final code quality before output
 - **Educational Agent** (Independent): Provides explanations focused on user's prompt
 
 ### 3. Tool Integration
-- **Compilation Tools**: Real-time Cirq code compilation
+- **Compilation Tools**: Real-time Braket code compilation
 - **Simulation Tools**: Quantum circuit simulation and testing
 - **Analysis Tools**: Circuit depth, gate count, and performance metrics
 

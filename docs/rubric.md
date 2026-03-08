@@ -13,7 +13,7 @@
 | 6 | **Code Quality and Documentation**<br>- Modular structure (`src`, `config`, `agents`)<br>- Clarity and consistency | 10 | 10 | 10 |
 | 7 | **Model Deployment and Containerization**<br>- Docker container deployment (`Dockerfile` in project root) | 10 | 10 | 10 |
 | 8 | **Modern Industry Standard Approach**<br>- GitHub, Makefile, Config management, automated testing | 10 | 10 | 10 |
-| 9 | **Bonus Marks**<br>- Novel method (Agent-Q/QUASAR-style ideas, RAG + multi-agent)<br>- Unique dataset (Cirq-specific knowledge base) | 20 | 20 | 20 |
+| 9 | **Bonus Marks**<br>- Novel method (Agent-Q/QUASAR-style ideas, RAG + multi-agent)<br>- Unique dataset (Braket-specific knowledge base) | 20 | 20 | 20 |
 | | **Total Implementation Marks** | **95** | **95** | **95** |
 | **Research Paper Evaluation (110)** | | | | | |
 | 10 | **Plagiarism**<br>- Turnitin check (expected \< 20\% similarity, \< 30\% AI content based on original writing + citations) | 20 | 20 | 20 |
@@ -43,7 +43,7 @@
 **Remaining Limitations / Caveats:**
 - **Human Study Missing:** The evaluation focuses on automated metrics (success/validation rate, depth, gates, latency, quality); there is no user study on educational effectiveness or usability.
 - **Partial Use of Advanced Features:** RL-based optimization and full QCanvas-backed remote validation are implemented but not deeply benchmarked in the reported experiments.
-- **Knowledge Base Size vs Target:** The curated Cirq knowledge base is solid but still below the long-term target size; further expansion could improve retrieval diversity.
+- **Knowledge Base Size vs Target:** The curated Braket knowledge base is solid but still below the long-term target size; further expansion could improve retrieval diversity.
 
 **Recommendations (Forward-Looking):**
 1. **Extend Empirical Evaluation:** Add more prompt variants, more algorithms, and possibly cross-framework tests (e.g., comparing against general-purpose LLM code assistants) to strengthen the empirical section.

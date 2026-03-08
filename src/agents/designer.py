@@ -2,7 +2,7 @@
 Designer Agent Module
 
 This module implements the Designer Agent, responsible for generating
-initial Cirq code from natural language descriptions.
+initial Braket code from natural language descriptions.
 
 Author: Umer Farooq, Hussain Waseem Syed, Muhammad Irtaza Khan
 Email: umerfarooqcs0891@gmail.com
@@ -12,20 +12,20 @@ from typing import Dict, Any, Optional
 from .base_agent import BaseAgent
 from ..rag.generator import Generator
 from ..rag.retriever import Retriever
-from ..tools.compiler import CirqCompiler
-from ..cirq_rag_code_assistant.config.logging import get_logger
+from ..tools.compiler import BraketCompiler
+from ..braket_rag_code_assistant.config.logging import get_logger
 
 logger = get_logger(__name__)
 
 
 class DesignerAgent(BaseAgent):
-    """Generates Cirq code from natural language descriptions."""
+    """Generates Braket code from natural language descriptions."""
     
     def __init__(
         self,
         retriever: Retriever,
         generator: Generator,
-        compiler: Optional[CirqCompiler] = None,
+        compiler: Optional[BraketCompiler] = None,
     ):
         """
         Initialize the DesignerAgent.
@@ -38,11 +38,11 @@ class DesignerAgent(BaseAgent):
         super().__init__(name="DesignerAgent")
         self.retriever = retriever
         self.generator = generator
-        self.compiler = compiler or CirqCompiler()
+        self.compiler = compiler or BraketCompiler()
     
     def execute(self, task: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Generate Cirq code from natural language description.
+        Generate Braket code from natural language description.
         
         Args:
             task: Task dictionary with 'query' and optional 'algorithm'
@@ -60,13 +60,11 @@ class DesignerAgent(BaseAgent):
             }
         
         try:
-            # Generate code using RAG
             result = self.generator.generate(
                 query=query,
                 algorithm=algorithm,
             )
             
-            # Validate generated code
             validation = self.compiler.compile(result["code"], execute=False)
             
             if validation["errors"]:

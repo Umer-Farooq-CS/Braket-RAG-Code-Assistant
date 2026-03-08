@@ -8,8 +8,8 @@ Author: Umer Farooq, Hussain Waseem Syed, Muhammad Irtaza Khan
 Email: umerfarooqcs0891@gmail.com
 
 Purpose:
-    - Clone GitHub repositories (Cirq only)
-    - Extract relevant Cirq code samples
+    - Clone GitHub repositories (Braket only)
+    - Extract relevant Braket code samples
     - Filter code based on relevance heuristics
     - Save extracted code to JSONL format
 
@@ -52,31 +52,32 @@ except ImportError:
 
 class DatasetFetcher:
     """
-    Fetches Cirq quantum computing code from GitHub repositories.
+    Fetches Braket quantum computing code from GitHub repositories.
     
-    This class handles cloning the Cirq repository, extracting relevant code samples,
+    This class handles cloning Amazon Braket repositories, extracting relevant code samples,
     and saving them to JSONL format for further processing.
     """
     
-    # Default repository configurations (Cirq only)
+    # Default repository configurations (Braket only)
     DEFAULT_REPOS = {
-        "Cirq": [
-            "https://github.com/quantumlib/Cirq",
+        "Braket": [
+            "https://github.com/amazon-braket/amazon-braket-sdk-python",
+            "https://github.com/amazon-braket/amazon-braket-examples",
         ]
     }
     
-    # Cirq-specific code patterns for relevance detection
+    # Braket-specific code patterns for relevance detection
     FRAMEWORK_PATTERNS = {
-        "Cirq": [
-            r"cirq\.Circuit",
-            r"cirq\.H",
-            r"cirq\.X",
-            r"cirq\.CNOT",
-            r"cirq\.Simulator",
-            r"cirq\.LineQubit",
-            r"cirq\.GridQubit",
-            r"import cirq",
-            r"from cirq",
+        "Braket": [
+            r"Circuit\(\)",
+            r"\.h\(",
+            r"\.x\(",
+            r"\.cnot\(",
+            r"LocalSimulator",
+            r"from braket",
+            r"import braket",
+            r"braket\.circuits",
+            r"braket\.devices",
         ]
     }
     
@@ -104,7 +105,7 @@ class DatasetFetcher:
         
         Args:
             repos: Dictionary mapping framework names to repository URLs.
-                   If None, uses DEFAULT_REPOS (Cirq only).
+                   If None, uses DEFAULT_REPOS (Braket only).
             repos_dir: Directory to clone repositories into.
             output_dir: Directory to save extracted datasets.
             skip_keywords: Additional keywords to skip in file paths.
@@ -130,7 +131,7 @@ class DatasetFetcher:
         
         Args:
             code: Code content to check
-            framework: Framework name (Cirq)
+            framework: Framework name (Braket)
             
         Returns:
             True if code contains relevant patterns, False otherwise

@@ -29,7 +29,7 @@ Dependencies:
     - json: For JSONL file handling
     - re: For pattern matching and extraction
     - ast: For code parsing and validation
-    - cirq: For Cirq-specific validation (optional)
+    - braket: For Braket-specific validation (optional)
     - hashlib: For duplicate detection
 
 Links to other modules:

@@ -1,6 +1,6 @@
 # Configuration Directory
 
-This directory contains all configuration files for the Cirq-RAG-Code-Assistant project.
+This directory contains all configuration files for the Braket-RAG-Code-Assistant project.
 
 ## Files
 
@@ -106,20 +106,20 @@ Modelfiles are Ollama's configuration format that lets you:
 
 | File | Agent | Purpose | Base Model |
 |------|-------|---------|------------|
-| `designer_agent.Modelfile` | cirq-designer-agent | Generate Cirq code (JSON output) | qwen2.5-coder:14b |
-| `educational_agent.Modelfile` | cirq-edu-agent | Explain circuits (Markdown output) | llama3.1:8b |
+| `designer_agent.Modelfile` | braket-designer-agent | Generate Braket code (JSON output) | qwen2.5-coder:14b |
+| `educational_agent.Modelfile` | braket-edu-agent | Explain circuits (Markdown output) | llama3.1:8b |
 
 ### Commands
 
 **Create an agent model:**
 ```bash
 cd config/ollama
-ollama create cirq-designer-agent -f designer_agent.Modelfile
+ollama create braket-designer-agent -f designer_agent.Modelfile
 ```
 
 **Remove an agent model:**
 ```bash
-ollama rm cirq-designer-agent
+ollama rm braket-designer-agent
 ```
 
 **List all models:**
@@ -129,13 +129,13 @@ ollama list
 
 **Test a model:**
 ```bash
-ollama run cirq-designer-agent "Create a Bell state circuit"
+ollama run braket-designer-agent "Create a Bell state circuit"
 ```
 
 **Recreate after modifying Modelfile:**
 ```bash
-ollama rm cirq-designer-agent
-ollama create cirq-designer-agent -f designer_agent.Modelfile
+ollama rm braket-designer-agent
+ollama create braket-designer-agent -f designer_agent.Modelfile
 ```
 
 ### Modelfile Parameters Reference

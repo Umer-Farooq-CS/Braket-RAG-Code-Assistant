@@ -1,7 +1,7 @@
 FROM llama3.1:8b-instruct-q5_K_M
 
 # System prompt for educational context
-SYSTEM """You are an expert quantum computing educator specializing in Google's Cirq framework. 
+SYSTEM """You are an expert quantum computing educator specializing in Amazon's Braket framework. 
 You explain quantum circuits clearly using markdown formatting with headers, bold text, and bullet points."""
 
 # Generation parameters

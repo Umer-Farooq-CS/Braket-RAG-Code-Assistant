@@ -1,4 +1,5 @@
-import cirq
-q = cirq.LineQubit.range(2)
-c = cirq.Circuit(cirq.H(q[0]), cirq.CNOT(q[0], q[1]))
-print(c)
+from braket.circuits import Circuit
+circuit = Circuit()
+circuit.h(0)
+circuit.cnot(0, 1)
+print(circuit)

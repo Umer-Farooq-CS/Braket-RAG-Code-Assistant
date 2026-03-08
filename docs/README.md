@@ -1,6 +1,6 @@
-# Cirq-RAG-Code-Assistant Documentation
+# Braket-RAG-Code-Assistant Documentation
 
-Welcome to the comprehensive documentation for the Cirq-RAG-Code-Assistant project. This documentation covers all aspects of the system, from high-level architecture to detailed implementation guides.
+Welcome to the comprehensive documentation for the Braket-RAG-Code-Assistant project. This documentation covers all aspects of the system, from high-level architecture to detailed implementation guides.
 
 ## 📚 Documentation Structure
 
@@ -58,10 +58,10 @@ Welcome to the comprehensive documentation for the Cirq-RAG-Code-Assistant proje
 
 For questions, issues, or contributions:
 
-- **GitHub Issues** - [Open an issue](https://github.com/Umer-Farooq-CS/Cirq-RAG-Code-Assistant/issues)
+- **GitHub Issues** - [Open an issue](https://github.com/Umer-Farooq-CS/Braket-RAG-Code-Assistant/issues)
 - **Email Contact** - umerfarooqcs0891@gmail.com
 - **Documentation** - Browse the [docs/](.) directory for detailed guides
 
 ---
 
-*This documentation is maintained as part of the Cirq-RAG-Code-Assistant project. Last updated: January 2025*
+*This documentation is maintained as part of the Braket-RAG-Code-Assistant project. Last updated: January 2025*

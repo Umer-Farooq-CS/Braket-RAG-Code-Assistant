@@ -2,7 +2,7 @@
 
 ## 🛠️ Complete Technology Stack
 
-This document provides a comprehensive overview of all technologies, frameworks, libraries, and tools used in the Cirq-RAG-Code-Assistant project.
+This document provides a comprehensive overview of all technologies, frameworks, libraries, and tools used in the Braket-RAG-Code-Assistant project.
 
 ## 🐍 Core Language & Runtime
 
@@ -14,9 +14,9 @@ This document provides a comprehensive overview of all technologies, frameworks,
 
 ## 🧮 Quantum Computing Framework
 
-### Cirq
-- **Version**: 1.2.0+
-- **Purpose**: Google's quantum computing framework
+### Braket
+- **Version**: 1.50.0+
+- **Purpose**: Amazon's quantum computing framework
 - **Key Features**:
   - Circuit construction and manipulation
   - Quantum simulation capabilities
@@ -275,7 +275,7 @@ This document provides a comprehensive overview of all technologies, frameworks,
   - Features: Web-based plots, 3D visualization
 
 ### Circuit Visualization
-- **Cirq Visualization**
+- **Braket Visualization**
   - Purpose: Quantum circuit diagrams
   - Features: Circuit drawing, gate representation
 - **QCanvas Integration**
@@ -327,7 +327,7 @@ This document provides a comprehensive overview of all technologies, frameworks,
 | Component | Minimum Version | Recommended Version | Notes |
 |-----------|----------------|-------------------|-------|
 | Python | 3.11 | 3.11+ | Required for modern features |
-| Cirq | 1.2.0 | 1.2.0+ | Core quantum framework |
+| Braket | 1.50.0 | 1.50.0+ | Core quantum framework |
 | FastAPI | 0.104.0 | 0.104.0+ | API framework |
 | Transformers | 4.35.0 | 4.35.0+ | NLP models |
 | FAISS | 1.7.4 | 1.7.4+ | Vector search |

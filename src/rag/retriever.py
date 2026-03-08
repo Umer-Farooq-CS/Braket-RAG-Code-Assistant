@@ -3,13 +3,13 @@ RAG Retriever Module
 
 This module implements the retrieval component of the RAG system.
 It handles semantic search, context retrieval, and relevance ranking
-for Cirq code examples and documentation.
+for Braket code examples and documentation.
 
 Author: Umer Farooq, Hussain Waseem Syed, Muhammad Irtaza Khan
 Email: umerfarooqcs0891@gmail.com
 
 Purpose:
-    - Retrieve relevant Cirq code examples from knowledge base
+    - Retrieve relevant Braket code examples from knowledge base
     - Perform semantic similarity search using embeddings
     - Rank and filter results based on relevance scores
     - Provide context for code generation
@@ -42,8 +42,8 @@ Links to other modules:
 import re
 from typing import List, Dict, Optional, Any, Set
 from .knowledge_base import KnowledgeBase
-from ..cirq_rag_code_assistant.config import get_config
-from ..cirq_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.config import get_config
+from ..braket_rag_code_assistant.config.logging import get_logger
 
 logger = get_logger(__name__)
 

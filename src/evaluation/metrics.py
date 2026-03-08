@@ -6,7 +6,7 @@ This module implements metrics collection for code generation quality.
 
 from typing import Dict, Any, List, Optional
 from collections import defaultdict
-from ..cirq_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.config.logging import get_logger
 
 logger = get_logger(__name__)
 

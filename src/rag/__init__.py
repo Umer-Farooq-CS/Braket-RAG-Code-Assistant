@@ -1,7 +1,7 @@
 """
 RAG (Retrieval-Augmented Generation) System Module
 
-This module implements the RAG system for the Cirq-RAG-Code-Assistant.
+This module implements the RAG system for the Braket-RAG-Code-Assistant.
 It provides components for knowledge retrieval, embedding generation, and
 context-aware code generation.
 

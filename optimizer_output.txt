@@ -1,27 +1,21 @@
-import cirq
+from braket.circuits import Circuit
 
-# Define qubits
-q0, q1 = cirq.LineQubit.range(2)
-
-# Create a circuit
-circuit = cirq.Circuit()
+circuit = Circuit()
 
 # Apply optimizations
-# Original gates: X(q0), X(q0), CNOT(q0, q1), CNOT(q0, q1), H(q0), H(q0)
-# Z(q1), Z(q1), X(q1), X(q1)
+# Original gates: X(0), X(0), CNOT(0, 1), CNOT(0, 1), H(0), H(0)
+# Z(1), Z(1), X(1), X(1)
 
 # Simplify redundant gates
 # Two consecutive X gates on the same qubit cancel each other out
 # Two consecutive Z gates on the same qubit cancel each other out
 
 # Optimized circuit
-circuit.append([
-    cirq.CNOT(q0, q1),
-    cirq.CNOT(q0, q1),
-    cirq.H(q0),
-    cirq.H(q0),
-    cirq.X(q1)
-])
+circuit.cnot(0, 1)
+circuit.cnot(0, 1)
+circuit.h(0)
+circuit.h(0)
+circuit.x(1)
 
 # Print the optimized circuit
 print(circuit)

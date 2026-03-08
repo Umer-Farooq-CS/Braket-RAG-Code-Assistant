@@ -2,7 +2,7 @@
 
 ## 🏗️ High-Level Architecture
 
-The Cirq-RAG-Code-Assistant employs a sophisticated multi-layered architecture that combines Retrieval-Augmented Generation (RAG) with a multi-agent orchestration system.
+The Braket-RAG-Code-Assistant employs a sophisticated multi-layered architecture that combines Retrieval-Augmented Generation (RAG) with a multi-agent orchestration system.
 
 ```mermaid
 graph TB
@@ -35,7 +35,7 @@ graph TB
     end
     
     subgraph "Tool Layer"
-        COMPILER[Cirq Compiler]
+        COMPILER[Braket Compiler]
         SIMULATOR[Quantum Simulator]
         ANALYZER[Circuit Analyzer]
     end
@@ -122,18 +122,18 @@ graph TB
 #### Designer Agent
 ```python
 class DesignerAgent:
-    """Generates initial Cirq code from natural language descriptions."""
+    """Generates initial Braket code from natural language descriptions."""
     
     def __init__(self):
         self.rag_system = RAGSystem()
         self.code_templates = CodeTemplateManager()
-        self.cirq_knowledge = CirqKnowledgeBase()
+        self.braket_knowledge = BraketKnowledgeBase()
     
     def generate_code(self, description: str) -> GeneratedCode:
         # 1. Parse natural language input
         # 2. Retrieve relevant examples from RAG
         # 3. Generate initial code structure
-        # 4. Apply Cirq best practices
+        # 4. Apply Braket best practices
         # 5. Return structured code with metadata
 ```
 
@@ -147,7 +147,7 @@ class OptimizerAgent:
         self.performance_analyzer = CircuitAnalyzer()
         self.gate_reduction = GateReductionEngine()
     
-    def optimize_circuit(self, circuit: cirq.Circuit) -> OptimizedCircuit:
+    def optimize_circuit(self, circuit: Circuit) -> OptimizedCircuit:
         # 1. Analyze circuit structure and metrics
         # 2. Apply optimization rules
         # 3. Reduce gate count and depth
@@ -161,7 +161,7 @@ class ValidatorAgent:
     """Validates generated code through compilation and simulation."""
     
     def __init__(self):
-        self.compiler = CirqCompiler()
+        self.compiler = BraketCompiler()
         self.simulator = QuantumSimulator()
         self.test_suite = TestSuite()
     
@@ -225,7 +225,7 @@ knowledge_base/
 
 ### 5. Tool Layer
 
-#### Cirq Compiler
+#### Braket Compiler
 - **Purpose**: Real-time code compilation and validation
 - **Features**:
   - Syntax checking

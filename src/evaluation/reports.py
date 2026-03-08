@@ -10,7 +10,7 @@ from pathlib import Path
 from datetime import datetime
 from .metrics import MetricsCollector
 from .benchmark import BenchmarkSuite
-from ..cirq_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.config.logging import get_logger
 
 logger = get_logger(__name__)
 

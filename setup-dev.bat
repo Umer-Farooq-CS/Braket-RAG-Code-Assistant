@@ -1,8 +1,8 @@
 @echo off
-REM Cirq-RAG-Code-Assistant Development Environment Setup Script
+REM Braket-RAG-Code-Assistant Development Environment Setup Script
 REM For Windows with PyTorch CUDA support
 
-echo 🚀 Setting up Cirq-RAG-Code-Assistant development environment...
+echo 🚀 Setting up Braket-RAG-Code-Assistant development environment...
 
 REM Check Python version
 echo [INFO] Checking Python version...
@@ -56,12 +56,12 @@ if not exist ".env" (
         echo [SUCCESS] Created .env file from template
     ) else (
         echo [WARNING] env.template not found, creating basic .env file
-        echo # Cirq-RAG-Code-Assistant Environment Configuration > .env
+        echo # Braket-RAG-Code-Assistant Environment Configuration > .env
         echo DEBUG=true >> .env
         echo ENVIRONMENT=development >> .env
         echo LOG_LEVEL=INFO >> .env
-        echo LOG_FILE=outputs/logs/cirq_rag.log >> .env
-        echo DATABASE_URL=sqlite:///data/cirq_rag.db >> .env
+        echo LOG_FILE=outputs/logs/braket_rag.log >> .env
+        echo DATABASE_URL=sqlite:///data/braket_rag.db >> .env
     )
 ) else (
     echo [WARNING] .env file already exists

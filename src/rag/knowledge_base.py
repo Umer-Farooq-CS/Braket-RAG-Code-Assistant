@@ -1,7 +1,7 @@
 """
 Knowledge Base Module
 
-This module manages the curated knowledge base of Cirq code snippets,
+This module manages the curated knowledge base of Braket code snippets,
 documentation, and educational content. It handles data loading,
 indexing, and retrieval.
 
@@ -44,15 +44,15 @@ from collections import defaultdict
 from ..data.dataset_loader import DatasetLoader
 from .embeddings import EmbeddingModel
 from .vector_store import VectorStore
-from ..cirq_rag_code_assistant.config import get_config
-from ..cirq_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.config import get_config
+from ..braket_rag_code_assistant.config.logging import get_logger
 
 logger = get_logger(__name__)
 
 
 class KnowledgeBase:
     """
-    Manages the curated knowledge base of Cirq code snippets and documentation.
+    Manages the curated knowledge base of Braket code snippets and documentation.
     
     Handles loading, indexing, and retrieval of knowledge base entries with
     support for semantic search via vector embeddings.
@@ -329,7 +329,7 @@ class KnowledgeBase:
         Get all entries for a specific framework.
         
         Args:
-            framework: Framework name (e.g., "Cirq")
+            framework: Framework name (e.g., "Braket")
             
         Returns:
             List of entries for the framework

@@ -10,7 +10,7 @@ Email: umerfarooqcs0891@gmail.com
 
 Purpose:
     - Generate embeddings for natural language queries
-    - Generate embeddings for Cirq code snippets
+    - Generate embeddings for Braket code snippets
     - Support batch processing for efficiency
     - Leverage PyTorch CUDA for acceleration
 
@@ -53,8 +53,8 @@ try:
 except ImportError:
     SENTENCE_TRANSFORMERS_AVAILABLE = False
 
-from ..cirq_rag_code_assistant.config import get_config
-from ..cirq_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.config import get_config
+from ..braket_rag_code_assistant.config.logging import get_logger
 
 logger = get_logger(__name__)
 

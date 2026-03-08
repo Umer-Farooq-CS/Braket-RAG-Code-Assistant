@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the Cirq-RAG-Code-Assistant project will be documented in this file.
+All notable changes to the Braket-RAG-Code-Assistant project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
@@ -36,14 +36,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Educational Agent for learning support
 
 - **RAG System**
-  - Knowledge base structure for Cirq code snippets
+  - Knowledge base structure for Braket code snippets
   - Vector search using FAISS
   - Semantic embeddings with Sentence Transformers
   - Context retrieval and ranking
 
 - **Technology Stack**
   - Python 3.11+ support
-  - Cirq quantum computing framework
+  - Amazon Braket quantum computing framework
   - FastAPI for REST API
   - Comprehensive ML/AI libraries
   - Vector databases and search
@@ -74,7 +74,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Educational Focus**: Step-by-step explanations and learning materials
 
 ### Dependencies
-- Core: Cirq 1.2.0+, Transformers 4.35.0+, FastAPI 0.104.0+
+- Core: Amazon Braket SDK 1.50.0+, Transformers 4.35.0+, FastAPI 0.104.0+
 - ML/AI: PyTorch 2.1.0+, NumPy 1.24.0+, SciPy 1.11.0+
 - Vector Search: FAISS 1.7.4+, ChromaDB 0.4.15+
 - NLP: spaCy 3.7.0+, NLTK 3.8.1+
@@ -132,4 +132,4 @@ This project uses [Semantic Versioning](https://semver.org/):
 
 ---
 
-*For more details about specific changes, see the [Git commit history](https://github.com/umerfarooq/cirq-rag-code-assistant/commits/main).*
+*For more details about specific changes, see the [Git commit history](https://github.com/umerfarooq/braket-rag-code-assistant/commits/main).*

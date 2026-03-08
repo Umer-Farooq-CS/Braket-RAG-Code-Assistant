@@ -55,8 +55,8 @@ try:
 except ImportError:
     CHROMADB_AVAILABLE = False
 
-from ..cirq_rag_code_assistant.config import get_config
-from ..cirq_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.config import get_config
+from ..braket_rag_code_assistant.config.logging import get_logger
 
 logger = get_logger(__name__)
 
@@ -151,7 +151,7 @@ class VectorStore:
         )
         
         # Create or get collection
-        collection_name = "cirq_rag_embeddings"
+        collection_name = "braket_rag_embeddings"
         try:
             self.collection = self.chroma_client.get_collection(collection_name)
             logger.info(f"Loaded existing ChromaDB collection: {collection_name}")

@@ -1,6 +1,6 @@
 # Notebooks Directory
 
-This directory contains Jupyter notebooks for different components and workflows of the Cirq-RAG-Code-Assistant project.
+This directory contains Jupyter notebooks for different components and workflows of the Braket-RAG-Code-Assistant project.
 
 ## Notebook Structure
 

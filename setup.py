@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Setup script for Cirq-RAG-Code-Assistant.
+Setup script for Braket-RAG-Code-Assistant.
 
 This script provides backward compatibility for pip installations
 while the main configuration is in pyproject.toml.
@@ -13,7 +13,7 @@ try:
     with open("README.md", "r", encoding="utf-8") as fh:
         long_description = fh.read()
 except FileNotFoundError:
-    long_description = "A research-grade system for generating and explaining Cirq quantum computing code"
+    long_description = "A research-grade system for generating and explaining Braket quantum computing code"
 
 # Read requirements from requirements.txt
 try:
@@ -27,20 +27,20 @@ except FileNotFoundError:
     requirements = []
 
 setup(
-    name="cirq-rag-code-assistant",
+    name="braket-rag-code-assistant",
     version="0.1.0",
     author="Umer Farooq, Hussain Waseem Syed, Muhammad Irtaza Khan",
     author_email="umerfarooqcs0891@gmail.com",
-    description="A research-grade system for generating and explaining Cirq quantum computing code using RAG and multi-agent architecture with PyTorch CUDA optimization",
+    description="A research-grade system for generating and explaining Braket quantum computing code using RAG and multi-agent architecture with PyTorch CUDA optimization",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/umerfarooq/cirq-rag-code-assistant",
+    url="https://github.com/umerfarooq/braket-rag-code-assistant",
     project_urls={
-        "Bug Reports": "https://github.com/umerfarooq/cirq-rag-code-assistant/issues",
-        "Source": "https://github.com/umerfarooq/cirq-rag-code-assistant",
-        "Documentation": "https://cirq-rag-code-assistant.readthedocs.io",
+        "Bug Reports": "https://github.com/umerfarooq/braket-rag-code-assistant/issues",
+        "Source": "https://github.com/umerfarooq/braket-rag-code-assistant",
+        "Documentation": "https://braket-rag-code-assistant.readthedocs.io",
     },
-    packages=["cirq_rag_code_assistant"],
+    packages=["braket_rag_code_assistant"],
     package_dir={"": "src"},
     classifiers=[
         "Development Status :: 3 - Alpha",
@@ -97,16 +97,16 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "cirq-rag=cirq_rag_code_assistant.cli.main:main",
-            "cirq-rag-server=cirq_rag_code_assistant.api.server:main",
+            "braket-rag=braket_rag_code_assistant.cli.main:main",
+            "braket-rag-server=braket_rag_code_assistant.api.server:main",
         ],
         "gui_scripts": [
-            "cirq-rag-gui=cirq_rag_code_assistant.gui.main:main",
+            "braket-rag-gui=braket_rag_code_assistant.gui.main:main",
         ],
     },
     include_package_data=True,
     package_data={
-        "cirq_rag_code_assistant": [
+        "braket_rag_code_assistant": [
             "data/*",
             "templates/*",
             "static/*",
@@ -118,7 +118,7 @@ setup(
     zip_safe=False,
     keywords=[
         "quantum computing",
-        "cirq",
+        "braket",
         "rag",
         "multi-agent",
         "code generation",

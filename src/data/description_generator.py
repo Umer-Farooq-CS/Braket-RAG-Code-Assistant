@@ -56,9 +56,9 @@ class DescriptionGenerator:
     Supports both rule-based and ML-assisted description generation.
     """
     
-    # Cirq-specific keyword mappings
+    # Braket-specific keyword mappings
     FRAMEWORK_KEYWORDS = {
-        "Cirq": {
+        "Braket": {
             "circuit": "quantum circuit construction",
             "measure": "measurement operations",
             "gate": "quantum gate operations",

@@ -10,8 +10,8 @@ Email: umerfarooqcs0891@gmail.com
 
 from typing import Dict, Any, List, Optional, Callable
 from enum import Enum
-from ..cirq_rag_code_assistant.config import get_config
-from ..cirq_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.config import get_config
+from ..braket_rag_code_assistant.config.logging import get_logger
 
 logger = get_logger(__name__)
 

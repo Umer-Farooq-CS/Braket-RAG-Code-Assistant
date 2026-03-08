@@ -2,19 +2,19 @@
 
 ## 🚀 Get Started in 5 Minutes
 
-This guide will help you get up and running with Cirq-RAG-Code-Assistant quickly.
+This guide will help you get up and running with Braket-RAG-Code-Assistant quickly.
 
 ## 📦 Installation
 
 ### Option 1: Quick Install
 ```bash
-pip install cirq-rag-code-assistant
+pip install braket-rag-code-assistant
 ```
 
 ### Option 2: Development Install
 ```bash
-git clone https://github.com/umerfarooq/cirq-rag-code-assistant.git
-cd cirq-rag-code-assistant
+git clone https://github.com/umerfarooq/braket-rag-code-assistant.git
+cd braket-rag-code-assistant
 pip install -e ".[dev]"
 ```
 
@@ -25,19 +25,19 @@ pip install -e ".[dev]"
 #### Generate Quantum Code
 ```bash
 # Generate a simple VQE circuit
-cirq-rag generate "Create a VQE circuit for H2 molecule with 4 qubits"
+braket-rag generate "Create a VQE circuit for H2 molecule with 4 qubits"
 
 # Generate QAOA for MaxCut
-cirq-rag generate "Create a QAOA circuit for MaxCut problem on 3 qubits"
+braket-rag generate "Create a QAOA circuit for MaxCut problem on 3 qubits"
 
 # Generate Grover's algorithm
-cirq-rag generate "Implement Grover's search algorithm for 2 qubits"
+braket-rag generate "Implement Grover's search algorithm for 2 qubits"
 ```
 
 #### Interactive Mode
 ```bash
 # Start interactive session
-cirq-rag interactive
+braket-rag interactive
 
 # In interactive mode:
 > Create a quantum teleportation circuit
@@ -49,7 +49,7 @@ cirq-rag interactive
 
 #### Basic Code Generation
 ```python
-from cirq_rag_code_assistant import DesignerAgent, Orchestrator
+from braket_rag_code_assistant import DesignerAgent, Orchestrator
 
 # Initialize the system
 orchestrator = Orchestrator()
@@ -70,7 +70,7 @@ print(result.explanation)
 
 #### Advanced Usage
 ```python
-from cirq_rag_code_assistant import (
+from braket_rag_code_assistant import (
     DesignerAgent, 
     OptimizerAgent, 
     ValidatorAgent,
@@ -105,10 +105,10 @@ print(f"Validation: {'PASSED' if validation_result.success else 'FAILED'}")
 #### Start the Server
 ```bash
 # Start development server
-cirq-rag server
+braket-rag server
 
 # Or with custom settings
-cirq-rag server --host 0.0.0.0 --port 8080
+braket-rag server --host 0.0.0.0 --port 8080
 ```
 
 #### API Usage
@@ -157,7 +157,7 @@ print(result["optimization"])
 
 ### Example 1: VQE Circuit
 ```python
-from cirq_rag_code_assistant import Orchestrator
+from braket_rag_code_assistant import Orchestrator
 
 orchestrator = Orchestrator()
 
@@ -171,7 +171,7 @@ result = orchestrator.generate_code(
 )
 
 # The result contains:
-# - result.code: Generated Cirq code
+# - result.code: Generated Braket code
 # - result.explanation: Educational explanation
 # - result.optimization: Performance metrics
 # - result.validation: Test results
@@ -243,8 +243,8 @@ rag:
 ### Environment Variables
 ```bash
 # Set environment variables
-export CIRQ_RAG_LOG_LEVEL=INFO
-export CIRQ_RAG_DEBUG=false
+export BRAKET_RAG_LOG_LEVEL=INFO
+export BRAKET_RAG_DEBUG=false
 export OPENAI_API_KEY=your_api_key_here
 ```
 
@@ -288,13 +288,13 @@ print(f"Optimization Time: {optimized.optimization_time:.2f}s")
 ### Built-in Tutorials
 ```bash
 # List available tutorials
-cirq-rag tutorials list
+braket-rag tutorials list
 
 # Run a tutorial
-cirq-rag tutorials run vqe-basics
+braket-rag tutorials run vqe-basics
 
 # Interactive tutorial
-cirq-rag tutorials interactive grover-algorithm
+braket-rag tutorials interactive grover-algorithm
 ```
 
 ### Educational Content
@@ -320,10 +320,10 @@ for material in materials:
 ```python
 # If you get import errors
 try:
-    from cirq_rag_code_assistant import Orchestrator
+    from braket_rag_code_assistant import Orchestrator
 except ImportError as e:
     print(f"Import error: {e}")
-    print("Make sure the package is installed: pip install cirq-rag-code-assistant")
+    print("Make sure the package is installed: pip install braket-rag-code-assistant")
 ```
 
 #### 2. API Key Missing
@@ -340,14 +340,14 @@ if not os.getenv("OPENAI_API_KEY"):
 netstat -an | grep 8000
 
 # Try different port
-cirq-rag server --port 8080
+braket-rag server --port 8080
 ```
 
 ### Debug Mode
 ```bash
 # Enable debug logging
-export CIRQ_RAG_DEBUG=true
-cirq-rag generate "test circuit" --verbose
+export BRAKET_RAG_DEBUG=true
+braket-rag generate "test circuit" --verbose
 ```
 
 ## 📚 Next Steps
@@ -369,7 +369,7 @@ cirq-rag generate "test circuit" --verbose
 
 ### 4. Contribute
 - Check out the [Contributing Guide](contributing.md)
-- Report issues on [GitHub](https://github.com/umerfarooq/cirq-rag-code-assistant/issues)
+- Report issues on [GitHub](https://github.com/umerfarooq/braket-rag-code-assistant/issues)
 - Join the community discussions
 
 ## 🆘 Getting Help
@@ -381,13 +381,13 @@ cirq-rag generate "test circuit" --verbose
 - [Examples](examples/README.md)
 
 ### Community
-- [GitHub Issues](https://github.com/umerfarooq/cirq-rag-code-assistant/issues)
-- [GitHub Discussions](https://github.com/umerfarooq/cirq-rag-code-assistant/discussions)
-- [Discord Community](https://discord.gg/cirq-rag)
+- [GitHub Issues](https://github.com/umerfarooq/braket-rag-code-assistant/issues)
+- [GitHub Discussions](https://github.com/umerfarooq/braket-rag-code-assistant/discussions)
+- [Discord Community](https://discord.gg/braket-rag)
 
 ### Support
 - Email: umerfarooqcs0891@gmail.com
-- Documentation: [cirq-rag-code-assistant.readthedocs.io](https://cirq-rag-code-assistant.readthedocs.io)
+- Documentation: [braket-rag-code-assistant.readthedocs.io](https://braket-rag-code-assistant.readthedocs.io)
 
 ---
 
