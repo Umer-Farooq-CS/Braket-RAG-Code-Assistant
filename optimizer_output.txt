@@ -1,0 +1,27 @@
+import cirq
+
+# Define qubits
+q0, q1 = cirq.LineQubit.range(2)
+
+# Create a circuit
+circuit = cirq.Circuit()
+
+# Apply optimizations
+# Original gates: X(q0), X(q0), CNOT(q0, q1), CNOT(q0, q1), H(q0), H(q0)
+# Z(q1), Z(q1), X(q1), X(q1)
+
+# Simplify redundant gates
+# Two consecutive X gates on the same qubit cancel each other out
+# Two consecutive Z gates on the same qubit cancel each other out
+
+# Optimized circuit
+circuit.append([
+    cirq.CNOT(q0, q1),
+    cirq.CNOT(q0, q1),
+    cirq.H(q0),
+    cirq.H(q0),
+    cirq.X(q1)
+])
+
+# Print the optimized circuit
+print(circuit)

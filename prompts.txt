@@ -1,0 +1,61 @@
+================================================================================
+                    GENERATIVE AI PROJECT - PROMPTS LOG
+================================================================================
+Project: Cirq-RAG Code Assistant - A Multi-Agent Quantum Circuit Generation System
+================================================================================
+
+
+1. Now understand this proposal and see what I want to do. Then explain to me this, I have already downloaded qwen2.5-coder:14b-instruct-q4_K_M model as my LLM and it generates a nice Cirq code as well as other GPTs like ChatGPT and Copilot and Deepseek Claude Gemini all of them give nice codes and the stuff that we are doing. Explain to me what can I do there which will make my project actually useful i.e something that these LLMs cant do by default or struggle with etc.
+
+2. Validate Knowledge Base Circuits. The user's primary objective is to ensure the robustness of the ValidatorAgent's self-correction mechanism and the integrity of the knowledge base circuits. This involves: (1) Fixing the ValidatorAgent to trigger LLM-powered code fixing for all validation failures, including compilation errors and cases where no circuit is detected, not just simulation failures. (2) Verifying that the system is correctly utilizing the knowledge base for Designer Agent code generation. (3) Creating a dedicated test script to systematically run and validate every code example within the curated_designer_examples.jsonl knowledge base.
+
+3. Check if anything is missing from this [project requirements document]. I think we forgot the prompts.txt, check if we missed anything else too.
+
+4. Create a template prompts.txt and add all the prompts that I gave to you above not missing any of them. Also I have added my deepseek chat so use that too.
+
+5. I want to build a multi-agent system for quantum circuit generation. What are the best options for running LLMs locally? I need something that can run on my machine with a decent GPU (RTX series). Compare Ollama, LM Studio, and vLLM for local deployment. Which one would be easiest to integrate with a Python application?
+
+6. I'm building a multi-agent RAG system with the following agents: Designer Agent, Validator Agent, Optimizer Agent, Educational Agent. What Ollama models would you recommend for each agent? Consider code generation capability, instruction following for structured output, context window size, speed vs accuracy tradeoff. My GPU has 8GB VRAM.
+
+7. How do I create a custom Ollama Modelfile to configure system prompts and generation parameters for my agents? I want the Designer agent to output JSON with "code" and "description" fields, temperature settings for deterministic code generation, and specific stop tokens to prevent extra text after JSON.
+
+8. What's the difference between Q4_K_M, Q5_K_M, and Q8_0 quantization for Ollama models? I need to balance quality vs VRAM usage for my 8GB GPU. Which quantization would you recommend for a 14B parameter coding model and a 7B parameter general model?
+
+9. For the RAG system's vector store, what embedding model should I use for semantic search over quantum computing code examples? Options I'm considering: sentence-transformers/all-MiniLM-L6-v2, BAAI/bge-small-en, nomic-embed-text, OpenAI text-embedding-ada-002. I want something that works well with code, runs locally, and has good performance.
+
+10. Show me how to call Ollama's /api/generate endpoint from Python to get structured JSON output. I need to send a prompt with RAG context, parse the JSON response, handle streaming vs non-streaming modes, and set custom parameters like temperature and max_tokens.
+
+11. How do I set up a ChromaDB vector store for storing quantum circuit code examples? I need to store code snippets with metadata, use a local embedding model, support hybrid search, and persist the database to disk.
+
+12. I need to create a knowledge base of Cirq code examples for my RAG system. What categories of quantum circuits should I include? Consider basic gates, common algorithms (Grover, Shor, QFT, VQE, QAOA), error correction codes, hardware-specific optimizations. How should I structure the JSONL file for easy retrieval?
+
+13. What retrieval strategy should I use for my quantum circuit RAG system? I want to combine semantic similarity, topic/keyword matching, and difficulty filtering. How do I implement a hybrid scoring system that boosts results matching specific topics mentioned in the query?
+
+14. Design a multi-agent pipeline for quantum circuit generation with the following requirements: Designer generates initial code, Validator checks if code compiles and runs, if validation fails loop back to Designer with error feedback, Optimizer improves the validated circuit, final validation before returning to user. How should the agents communicate?
+
+15. Implement a self-correction mechanism for the Validator agent. When code fails to compile or simulate: capture the error message, send the code and error to the LLM for fixing, retry validation with the fixed code, limit retries to prevent infinite loops. How do I structure the prompt to the LLM to get good code fixes?
+
+16. My generated Cirq code is using deprecated APIs like cirq.optimizers and cirq.contrib.qaoa which don't exist in the current version. How do I update the knowledge base to use modern Cirq syntax, add negative examples to prevent the LLM from generating deprecated code, and use cirq.transformers instead of cirq.optimizers?
+
+17. My ValidatorAgent is using a remote QCanvas backend but I need it to use local Cirq simulation. The config.json says mode="local" but the notebook hardcodes mode="remote". How do I fix the notebook to read from config, ensure local Cirq simulation works correctly, and format results to match the expected output structure?
+
+18. Update notebooks 06_optimizer_agent.ipynb and 07_validator_agent.ipynb to correctly initialize OptimizerAgent and ValidatorAgent with a shared Retriever instance, enabling RAG functionality.
+
+19. Refactor the orchestration module and its corresponding 09_orchestration.ipynb notebook to align with project standards. Implement Designer → Validator → Optimizer ⟷ Validator Loop → Final Validator pipeline.
+
+20. Implement custom Ollama Modelfile for the designer agent, ensuring it generates JSON output containing code and description. Update src/rag/generator.py to use the Ollama /api/generate endpoint.
+
+21. Update the 04_rag_system.ipynb notebook to demonstrate and compare code generation using the full RAG pipeline against direct LLM generation without RAG context.
+
+22. Implement robust hybrid scoring system to prioritize topics during retrieval. Refactor extract_query_keywords, compute_topic_boost, and hybrid_search functions into src/rag/retriever.py.
+
+23. Complete missing Python modules and corresponding notebook implementations. Integrate RL optimization loop into the optimizer agent.
+
+24. In the prompts.txt add all the prompts that I may have used to figure out which models to use and what provider (ollama) to use for each agent and some others as well.
+
+25. Now also create a prompts.md file that is same as prompts.txt but with better readability and make it always highlight the prompt to show separate from the context and gives all prompts at the end without context.
+
+
+================================================================================
+                              END OF PROMPTS FILE
+================================================================================

@@ -1,0 +1,7 @@
+# Project Intelligence (.cursorrules)
+
+- Maintain Memory Bank rigorously; read at task start
+- Prefer RAG over prompt-only; Cirq-specific retrieval
+- Multi-agent roles: Designer, Optimizer, Validator, Educational
+- Use Python 3.11+, Cirq; reproducible seeds for simulation
+- Pre-commit: black, isort, flake8 (optional mypy)

@@ -1,0 +1,209 @@
+\documentclass[runningheads]{llncs}
+\usepackage{graphicx}
+\usepackage{hyperref}
+\usepackage{amsmath}
+\usepackage{listings}
+\usepackage{xcolor}
+
+\title{Retrieval-Augmented Generation for Cirq Quantum Code Generation: A Multi-Agent, Tool-Augmented, RL-Enhanced LLM Approach}
+\titlerunning{RAG for Cirq Quantum Code Generation}
+
+\author{Umer Farooq \and Hussain Waseem Syed \and Muhammad Irtaza Khan}
+\institute{FAST NUCES Islamabad, Department of Computer Science\\
+\email{i220891@nu.edu.pk, i220893@nu.edu.pk, i220911@nu.edu.pk}}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We propose a specialized Retrieval-Augmented Generation (RAG) system for generating accurate Cirq quantum computing code from natural language descriptions. Our approach combines a curated knowledge base of Cirq implementations with large language models to produce executable quantum circuits with comprehensive explanations. The system addresses the growing need for accessible quantum programming tools by providing an AI-powered assistant specifically tailored for Google's Cirq framework. We will evaluate our approach using standard quantum algorithms including VQE, QAOA, and quantum teleportation, with the goal of improving code accuracy and educational value compared to baseline LLM-only approaches. Our goal is to achieve over 90\% syntactically correct code generation with comprehensive explanations, making quantum programming more accessible to students and researchers.
+\keywords{Retrieval-Augmented Generation \and Cirq \and Quantum Computing \and Code Generation \and Educational AI \and Multi-Agent Systems \and Tool-Augmented LLMs \and Agentic Reinforcement Learning}
+\end{abstract}
+
+\section{Introduction}
+
+Quantum computing represents a paradigm shift in computational capabilities, promising exponential speedups for specific problems. However, the steep learning curve associated with quantum programming frameworks presents a significant barrier to adoption. Google's Cirq framework, while powerful, requires deep understanding of quantum mechanics and Python programming, making it challenging for newcomers to the field.
+
+The complexity of quantum programming is compounded by the need to understand both quantum mechanical principles and framework-specific syntax. Traditional approaches to learning quantum programming rely heavily on documentation and examples, which can be overwhelming for beginners. This creates a significant gap between theoretical understanding and practical implementation.
+
+Recent advances in Large Language Models (LLMs) and Retrieval-Augmented Generation (RAG) systems offer promising solutions to this challenge \cite{siavash2025modeldrivenquantumcodegeneration}. RAG systems combine the generative capabilities of LLMs with external knowledge bases, enabling more accurate and contextually relevant responses. When applied to quantum code generation, RAG systems can provide not only correct code but also educational explanations and best practices, as demonstrated by recent work in quantum code transpilation \cite{siavash2025llmpoweredquantumcodetranspilation}.
+
+Our work introduces a specialized RAG system for Cirq quantum code generation that addresses these challenges through a curated knowledge base and intelligent retrieval mechanisms. The system is designed to serve both educational and practical purposes, aiming to help users learn quantum programming while generating production-ready code.
+
+\section{Related Work}
+
+\subsection{Quantum Code Generation}
+Recent work has explored the application of AI to quantum programming. Several studies have demonstrated the potential of LLMs for generating quantum code, with varying degrees of success across different frameworks. However, most existing approaches focus on either code generation, explanation generation, or code optimization not all three together.
+
+\subsection{Retrieval-Augmented Generation}
+RAG systems have shown significant promise in improving the accuracy and reliability of LLM outputs by incorporating external knowledge. The approach has been successfully applied to various domains, including code generation, but has not been extensively explored in the context of quantum computing.
+
+\subsection{Educational AI Systems}
+AI-powered educational tools have gained traction in computer science education, with systems designed to provide personalized learning experiences and automated code generation. However, the unique challenges of quantum computing education require specialized approaches that combine domain expertise with AI capabilities.
+
+\subsection{Quantum Computing Education}
+The field of quantum computing education has seen growing interest, with various tools and platforms designed to make quantum concepts more accessible. However, there remains a significant gap in AI-powered tools specifically designed for quantum programming education.
+
+\subsection{Foundation Research and Building Blocks}
+Our work builds upon several recent advances in RAG systems and quantum programming assistance. Siavash and Moin \cite{siavash2025modeldrivenquantumcodegeneration} present a comprehensive model-driven approach to quantum code generation using RAG, demonstrating significant improvements in code accuracy through sophisticated retrieval mechanisms and context-aware generation strategies. Their work establishes the foundation for domain-specific RAG applications in quantum computing, providing crucial insights into retrieval optimization and knowledge base construction for quantum programming tasks.
+
+Building on this foundation, Siavash and Moin \cite{siavash2025llmpoweredquantumcodetranspilation} introduce advanced techniques for improving low-level quantum code quality using LLMs. Their approach demonstrates the importance of framework-specific knowledge in quantum programming assistance, which informs our focus on Cirq-specific optimization.
+
+Dupuis et al. \cite{10691762} present the Qiskit Code Assistant, a specialized LLM system for generating quantum computing code. Their work demonstrates the effectiveness of framework-specific training and fine-tuning approaches, providing valuable insights into how to adapt general-purpose LLMs for quantum programming tasks. Their evaluation methodology and training strategies directly inform our approach to developing Cirq-specific code generation capabilities.
+
+Jiménez-Navajas et al. \cite{jimenez2025codegeneration} explore code generation for classical-quantum software systems using UML modeling approaches. Their work provides crucial insights into systematic approaches for AI-powered code generation, emphasizing the importance of robust evaluation frameworks and quality assessment methodologies. Their systematic approach provides essential guidelines for implementing reliable and maintainable AI code generation systems in quantum computing contexts.
+
+Basit et al. \cite{basit2025pennylangpioneeringllmbasedquantum} introduce PennyLang, a pioneering LLM-based quantum code generation system with a novel PennyLane-centric dataset. Their work addresses the critical challenge of dataset curation and quality assessment for quantum programming education, providing methodologies that we adapt for our Cirq-specific knowledge base construction. Their approach to creating framework-specific datasets directly informs our methodology for ensuring high-quality training data and evaluation metrics.
+
+Finally, Campbell et al. \cite{campbell2025enhancingllmbasedquantumcode} present comprehensive multi-agent optimization and quantum error correction approaches for LLM-based quantum code generation. Complementary to this, QUASAR by Yu et al. \cite{yu2025quasarquantumassemblycode} demonstrates tool-augmented LLMs with agentic reinforcement learning (RL) for low-level quantum code generation, and Agent-Q by Jern et al. \cite{jern2025agentqfinetuninglargelanguage} explores fine-tuning LLMs specifically for quantum circuit generation and optimization. Together, these works inform our approach to combining strong circuit priors (Agent-Q-style fine-tuning) with in-loop tool-augmented optimization (QUASAR-style) within a multi-agent framework.
+
+\subsection{Our Contribution and Innovation}
+While these foundational works provide excellent starting points, our contribution lies in creating the first specialized hybrid RAG + Multi-Agent system specifically designed for Google's Cirq framework. We extend the model-driven RAG approach from \cite{siavash2025modeldrivenquantumcodegeneration} by implementing a multi-agent architecture that combines specialized agents for different quantum programming tasks. Our system focuses on Cirq-specific optimization and educational assistance.
+
+We adapt the framework-specific training methodologies from \cite{10691762} for Cirq development, implementing specialized fine-tuning approaches and evaluation strategies tailored to Cirq's unique characteristics. Our system architecture follows the systematic code generation approaches outlined in \cite{jimenez2025codegeneration}, ensuring robust evaluation frameworks and quality assessment methodologies throughout the development process.
+
+The dataset curation and quality assessment methods from \cite{basit2025pennylangpioneeringllmbasedquantum} directly inform our approach to constructing a comprehensive Cirq-specific knowledge base, ensuring high-quality training data and educational content. We extend the multi-agent optimization framework from \cite{campbell2025enhancingllmbasedquantumcode} to create specialized agents for circuit design, optimization, validation, and education, establishing new benchmarks for quantum programming assistance systems.
+
+Our key innovation lies in the integration of these approaches into a unified, Cirq-focused hybrid system that addresses the specific challenges of quantum programming education while maintaining the rigor and quality standards established by these foundational works. The system combines the strengths of RAG-based knowledge retrieval with multi-agent coordination to provide comprehensive quantum programming assistance.
+
+\section{Theoretical Foundations Used}
+
+\begin{itemize}
+\item Transformer Architecture
+\item Large Language Models (LLMs)
+\item Retrieval-Augmented Generation (RAG)
+\item Semantic Vector Search
+\item Contrastive Sentence Embeddings
+\item Multi-Agent Systems
+\item Tool-Augmented Reasoning and Function Calling
+\item Agentic Reinforcement Learning (RL)
+\item Prompt Engineering
+\item In-Context Learning (Few-Shot)
+\item Supervised Fine-Tuning
+\item Quantum Circuit Model
+\item Variational Quantum Algorithms (VQE, QAOA)
+\item Quantum Measurement and Simulation
+\end{itemize}
+
+\section{Methodology}
+
+\subsection{System Architecture}
+Our hybrid RAG + Multi-Agent system for Cirq code generation consists of five main components: a knowledge base, a retrieval system, an orchestration layer, specialized agents, and a generation system. The knowledge base contains curated Cirq implementations, documentation, and educational content, following the dataset curation methodologies from \cite{basit2025pennylangpioneeringllmbasedquantum}. The retrieval system uses semantic search to find relevant information for user queries, implementing the advanced RAG techniques from \cite{siavash2025modeldrivenquantumcodegeneration}. The orchestration layer coordinates between the RAG system and specialized agents, while the multi-agent system includes Circuit Designer, Optimizer, Validator, and Educational agents, extending the multi-agent framework from \cite{campbell2025enhancingllmbasedquantumcode}. The generation system combines retrieved information with LLM capabilities to produce accurate code and explanations.
+
+\subsection{Knowledge Base Construction}
+We construct a comprehensive knowledge base by curating Cirq implementations from various sources, including official documentation, tutorials, and research papers. Following the dataset curation methodologies proposed by Basit et al. \cite{basit2025pennylangpioneeringllmbasedquantum}, we implement systematic quality assessment frameworks to ensure high-quality training data. Their approach demonstrated significant improvements in code generation accuracy, achieving 58.2\% accuracy with GraphRAG-enhanced pipeline compared to 20.5\% without RAG, using a dataset of 3,347 PennyLane-specific quantum code samples.
+
+Our Cirq-centric dataset construction follows their structured methodology for data curation, annotation, and formatting to enhance LLM usability. Each entry includes the code implementation, natural language description, and educational explanations, following the multi-modal approach outlined in their PennyLane-centric dataset construction. The knowledge base is organized to support both specific algorithm implementations and general quantum programming concepts, incorporating the advanced RAG techniques from Siavash and Moin \cite{siavash2025modeldrivenquantumcodegeneration} for optimal retrieval performance. We apply the quality assessment criteria from their work to ensure that each knowledge base entry meets high standards for accuracy, completeness, and educational value.
+
+The dataset construction process involves three main phases: (1) Data Collection from official Cirq documentation, GitHub repositories, and quantum computing textbooks, (2) Data Annotation with contextual descriptions and educational explanations, and (3) Quality Assessment using automated validation and human expert review to ensure code correctness and educational value.
+
+\subsection{Retrieval Mechanism}
+The retrieval system uses semantic search to identify relevant knowledge base entries for user queries, implementing the advanced RAG techniques from Siavash and Moin \cite{siavash2025modeldrivenquantumcodegeneration}. We employ sentence transformers to encode both queries and knowledge base entries, enabling efficient similarity search with context-aware retrieval strategies. The system retrieves the most relevant entries and provides them as context for code generation, following the scientific computing methodologies adapted for quantum programming contexts.
+
+\subsection{Multi-Agent Code Generation}
+The generation system employs a multi-agent architecture to produce Cirq code based on user queries and retrieved context, extending the multi-agent optimization framework from Campbell et al. \cite{campbell2025enhancingllmbasedquantumcode}. We pair an Agent-Q–style fine-tuned LLM for higher-quality initial drafts \cite{jern2025agentqfinetuninglargelanguage} with QUASAR-style tool-augmented agentic RL \cite{yu2025quasarquantumassemblycode} to iteratively refine circuits using compile/simulate metrics as rewards. This yields better first-pass validity and fewer optimization iterations.
+
+Our system includes four specialized agents, each with distinct responsibilities:
+
+\textbf{Circuit Designer Agent:} Creates quantum circuits based on user specifications, implementing the model-driven approach from Siavash and Moin \cite{siavash2025modeldrivenquantumcodegeneration}. This agent translates natural language descriptions into Cirq circuit implementations, leveraging the retrieved context from the RAG system.
+
+\textbf{Optimizer Agent:} Optimizes generated circuits for performance and resource efficiency, incorporating the optimization strategies from Campbell et al. \cite{campbell2025enhancingllmbasedquantumcode}. This agent reduces circuit depth, minimizes gate count, and optimizes for specific quantum hardware constraints.
+
+\textbf{Validator Agent:} Validates generated code for syntax correctness, logical consistency, and quantum mechanical principles, following the systematic validation approaches from Jiménez-Navajas et al. \cite{jimenez2025codegeneration}. This agent ensures that all generated code is syntactically correct and follows quantum computing best practices.
+
+\textbf{Educational Agent:} Provides comprehensive explanations, learning content, and step-by-step breakdowns of quantum algorithms, incorporating the educational methodologies from Basit et al. \cite{basit2025pennylangpioneeringllmbasedquantum}. This agent enhances the learning experience by providing detailed explanations and educational context.
+
+Each agent is fine-tuned using the framework-specific training methodologies from Dupuis et al. \cite{10691762}, adapted for Cirq development. The system employs advanced prompt engineering techniques and agent coordination protocols to ensure consistent and high-quality outputs, with agents collaborating through a centralized orchestration layer.
+
+\subsection{Evaluation Framework}
+We evaluate our system using a comprehensive set of metrics including code accuracy, educational value, and user satisfaction, following the evaluation framework proposed by Campbell et al. \cite{campbell2025enhancingllmbasedquantumcode}. Their multi-agent optimization approach demonstrated significant improvements in quantum code generation quality through specialized agent coordination and quantum error correction mechanisms.
+
+Our evaluation methodology incorporates multiple assessment dimensions:
+
+\textbf{Technical Accuracy Metrics:} Following the framework-specific evaluation strategies from Dupuis et al. \cite{10691762}, we assess code generation accuracy using metrics such as syntax correctness (targeting >90\%), functional correctness, and execution success rates. We implement automated validation using Cirq's built-in circuit validation and quantum simulator testing.
+
+\textbf{Educational Value Assessment:} Incorporating the quality metrics from Basit et al. \cite{basit2025pennylangpioneeringllmbasedquantum}, we evaluate the educational content quality through expert review, user feedback, and learning outcome assessments. This includes measuring explanation clarity, step-by-step breakdown completeness, and conceptual understanding improvement.
+
+\textbf{Multi-Agent Performance:} We assess individual agent performance and overall system coordination using the multi-agent evaluation approaches from Campbell et al. \cite{campbell2025enhancingllmbasedquantumcode}. This includes measuring agent collaboration efficiency, task completion rates, and error reduction through agent coordination.
+
+We implement both automated metrics and human evaluation to ensure comprehensive assessment of system performance, incorporating the software engineering quality assessment methodologies from Jiménez-Navajas et al. \cite{jimenez2025codegeneration}. Our evaluation methodology extends the benchmarking approaches from their work while adapting them specifically for Cirq code generation tasks, ensuring rigorous assessment of both technical accuracy and educational value.
+
+\section{Experimental Setup}
+
+\subsection{Dataset}
+We construct a comprehensive dataset of quantum algorithms and implementations for evaluation, following the dataset construction methodology from Basit et al. \cite{basit2025pennylangpioneeringllmbasedquantum}. Our Cirq-centric dataset includes standard algorithms such as VQE, QAOA, quantum teleportation, Grover's algorithm, and quantum Fourier transform, with implementations ranging from simple single-qubit operations to complex multi-qubit algorithms.
+
+The dataset construction follows a three-tier approach: (1) \textbf{Basic Operations} including single-qubit gates, two-qubit gates, and measurement operations, (2) \textbf{Standard Algorithms} covering well-known quantum algorithms with varying complexity levels, and (3) \textbf{Advanced Applications} including quantum machine learning, optimization, and error correction implementations. Each entry includes the Cirq code implementation, natural language description, educational explanations, and expected outputs, following the multi-modal approach from the PennyLang dataset construction methodology.
+
+We target a dataset size of approximately 2,500-3,000 Cirq-specific implementations, comparable to the 3,347 samples used in the PennyLang study, ensuring comprehensive coverage of quantum programming concepts and maintaining high quality through automated validation and expert review processes.
+
+\subsection{Baseline Methods}
+We compare our hybrid RAG + Multi-Agent approach against several baseline methods to demonstrate the effectiveness of our integrated system. Following the evaluation methodology from Basit et al. \cite{basit2025pennylangpioneeringllmbasedquantum}, we establish the following baselines:
+
+\textbf{Direct LLM Generation:} We compare against direct LLM generation without retrieval augmentation, similar to the baseline approach that achieved 20.5\% accuracy in the PennyLang study. This baseline demonstrates the improvement gained through RAG integration.
+
+\textbf{Traditional RAG System:} We evaluate against a standard RAG system without multi-agent coordination, implementing the basic retrieval-augmented generation approach to isolate the benefits of our multi-agent architecture.
+
+\textbf{Existing Quantum Programming Tools:} We compare against existing quantum programming assistance tools and frameworks, including the Qiskit Code Assistant approach from Dupuis et al. \cite{10691762}, adapted for Cirq to ensure fair comparison.
+
+\textbf{Single-Agent Systems:} We evaluate individual agents in isolation to demonstrate the collaborative benefits of our multi-agent approach, following the multi-agent evaluation methodology from Campbell et al. \cite{campbell2025enhancingllmbasedquantumcode}.
+
+The comparison includes both quantitative metrics (code accuracy, execution success rates, response times) and qualitative assessment of generated code quality, educational value, and user satisfaction, ensuring comprehensive evaluation of our system's performance improvements.
+
+\subsection{Ablation Studies}
+We will run a focused set of ablations to capture the largest effects with minimal variants:
+\begin{itemize}
+\item Retrieval: \textit{No-RAG} (prompt-only) vs \textit{RAG} (semantic retrieval).
+\item Orchestration: \textit{Single-agent} (Designer only) vs \textit{Multi-agent (no RL)} (Designer, Optimizer heuristic, Validator, Educational).
+\item Model initialization: base LLM vs \textit{Agent-Q–style} fine-tuned LLM for circuit drafting.
+\item Optimization: heuristic/deterministic passes vs \textit{QUASAR-style tool-augmented RL} (compile/simulate metrics as rewards).
+\item Key role ablation: \textit{Multi-agent (no RL)} with and without the Optimizer to quantify optimization impact.
+\end{itemize}
+
+For each variant, we will report: compile success rate, functional correctness (unit/equivalence tests), circuit depth, two-qubit gate count, simulated fidelity under noise, number of tool calls/iterations, and wall-clock time to reach a passing solution. Where applicable, we will also report explanation quality (expert rating).
+
+\subsection{Evaluation Metrics}
+Our evaluation includes multiple metrics to assess different aspects of system performance:
+\begin{itemize}
+\item Code accuracy: Percentage of syntactically correct and executable code
+\item Functional correctness: Percentage of code that produces expected results
+\item Educational value: Quality of explanations and learning content
+\item User satisfaction: Feedback from users testing the system
+\end{itemize}
+
+\section{Results}
+
+\subsection{Code Generation Performance}
+We will evaluate the RAG system against baseline methods to measure improvements in code generation accuracy. The target is to achieve over 90\% syntactically correct code generation, alongside comprehensive explanations and educational content.
+
+\subsection{Educational Impact}
+We will assess educational value through detailed explanations and step-by-step breakdowns of quantum algorithms. We aim to improve users' understanding of quantum programming concepts and will measure learning outcomes through user studies.
+
+\subsection{User Experience}
+We will conduct user studies to evaluate satisfaction with the system's ability to generate accurate code and provide educational explanations, and to assess how well the system bridges the gap between theoretical understanding and practical implementation.
+
+\section{Discussion}
+
+\subsection{Limitations}
+While we aim for significant improvements, there are several limitations to consider. The system's performance will depend on the quality and comprehensiveness of the knowledge base. Additionally, the system may struggle with highly novel or complex quantum algorithms not well-represented in the knowledge base.
+
+\subsection{Future Work}
+Future work could explore expanding the system to support multiple quantum frameworks, improving the knowledge base with more diverse implementations, and developing more sophisticated retrieval mechanisms. Additionally, the system could be enhanced with interactive features and personalized learning capabilities.
+
+\subsection{Implications}
+Our work demonstrates the potential of RAG systems for quantum programming education and assistance. The approach could be extended to other quantum frameworks and adapted for different educational contexts.
+
+\section{Conclusion}
+
+We propose a specialized RAG system for Cirq quantum code generation that aims to address the challenges of quantum programming education and assistance. We will evaluate whether the system improves code accuracy and educational value compared to baseline approaches. This work is intended to contribute to the growing field of AI-powered educational tools and to provide a foundation for future research in quantum computing education.
+
+We aim for the system to generate accurate code and provide educational explanations, making it a valuable tool for students and researchers learning quantum programming. Future work will focus on expanding the system's capabilities and improving its performance across a wider range of quantum algorithms and use cases.
+
+\section*{Acknowledgments}
+We thank the quantum computing community for their contributions to open-source tools and educational resources that made this work possible.
+
+\bibliographystyle{splncs04}
+\newpage
+\bibliography{references}
+
+\end{document}

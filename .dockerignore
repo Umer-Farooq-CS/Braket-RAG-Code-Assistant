@@ -1,0 +1,27 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.env
+.git
+.gitignore
+.dockerignore
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+results/
+logs/
+outputs/
+experiments/
+tmp/
+.ipynb_checkpoints/
+docs/Research Paper/LaTeX Files/*.pdf
+docs/Research Paper/LaTeX Files/*.aux
+docs/Research Paper/LaTeX Files/*.log
+docs/Research Paper/LaTeX Files/*.out
+docs/Research Paper/LaTeX Files/*.synctex.gz
