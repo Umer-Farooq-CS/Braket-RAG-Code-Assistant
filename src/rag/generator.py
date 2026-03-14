@@ -60,6 +60,8 @@ except ImportError:
 
 from ..braket_rag_code_assistant.config import get_config
 from ..braket_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.bedrock_client import get_bedrock_runtime_client
+from ..agent_prompts import DESIGNER_SYSTEM
 
 logger = get_logger(__name__)
 
@@ -121,7 +123,7 @@ Generated code:"""
         Args:
             retriever: Retriever instance for context retrieval (optional if only using direct generation)
             model: LLM model name (defaults to config.agents.designer.model.model)
-            provider: LLM provider ("openai", "anthropic", or "ollama"; defaults to config.agents.designer.model.provider)
+            provider: LLM provider ("openai", "anthropic", "ollama", or "aws"; defaults to config.agents.designer.model.provider)
             temperature: Generation temperature (defaults to config.agents.designer.model.temperature or 0.2)
             max_tokens: Maximum tokens to generate (defaults to config.agents.designer.model.max_tokens or 2000)
         """
@@ -148,6 +150,9 @@ Generated code:"""
             # The base URL can be overridden with the OLLAMA_HOST environment variable.
             self.ollama_base_url = os.getenv("OLLAMA_HOST", "http://localhost:11434")
             self.client = None
+        elif self.provider == "aws":
+            self.client = get_bedrock_runtime_client(read_timeout=300)
+            self.ollama_base_url = None
         elif self.provider == "openai":
             if not OPENAI_AVAILABLE:
                 raise ImportError(
@@ -165,7 +170,7 @@ Generated code:"""
             # Anthropic client will use ANTHROPIC_API_KEY env var automatically
             self.client = anthropic.Anthropic()
         else:
-            raise ValueError(f"Unsupported provider: {provider}. Use 'ollama', 'openai', or 'anthropic'.")
+            raise ValueError(f"Unsupported provider: {provider}. Use 'ollama', 'aws', 'openai', or 'anthropic'.")
         
         logger.info(f"Initialized Generator with {provider}/{model}")
     
@@ -174,6 +179,7 @@ Generated code:"""
         query: str,
         algorithm: Optional[str] = None,
         top_k: int = 3,
+        system_prompt: Optional[str] = None,
         **kwargs
     ) -> Dict[str, Any]:
         """
@@ -257,6 +263,18 @@ CRITICAL CONSTRAINTS FOR QAOA:
                     **kwargs
                 )
                 generated_text = response.content[0].text
+            elif self.provider == "aws":
+                system_text = system_prompt if system_prompt is not None else DESIGNER_SYSTEM
+                response = self.client.converse(
+                    modelId=self.model,
+                    messages=[{"role": "user", "content": [{"text": prompt}]}],
+                    system=[{"text": system_text}],
+                    inferenceConfig={
+                        "maxTokens": self.max_tokens,
+                        "temperature": self.temperature,
+                    },
+                )
+                generated_text = response["output"]["message"]["content"][0]["text"]
             else:  # ollama - uses Modelfile's SYSTEM prompt
                 url = f"{self.ollama_base_url.rstrip('/')}/api/generate"
                 payload = {
@@ -272,7 +290,8 @@ CRITICAL CONSTRAINTS FOR QAOA:
             
             # Extract code from response (handles both JSON and raw formats)
             code, description = self._extract_code_from_response(generated_text)
-            
+            code = self._normalize_braket_imports(code)
+
             # Extract metadata
             metadata = self._extract_metadata(code, algorithm)
             metadata["description"] = description
@@ -322,7 +341,7 @@ CRITICAL CONSTRAINTS FOR QAOA:
             
             data = json.loads(clean_text)
             code = data.get("code", "")
-            description = data.get("description", "")
+            description = data.get("description", "") or data.get("explanation", "")
             
             if code:
                 logger.debug("Successfully extracted code from JSON response")
@@ -370,7 +389,22 @@ CRITICAL CONSTRAINTS FOR QAOA:
         
         # Fallback: return the entire text
         return text.strip()
-    
+
+    def _normalize_braket_imports(self, code: str) -> str:
+        """
+        Fix mistaken 'amazon' imports in generated code.
+        The Amazon Braket SDK is imported as `braket`, not `amazon` or `amazon.braket`.
+        """
+        if not code or "amazon" not in code:
+            return code
+        # from amazon.braket... -> from braket...
+        code = re.sub(r"\bfrom\s+amazon\.braket\b", "from braket", code)
+        # import amazon.braket... -> import braket...
+        code = re.sub(r"\bimport\s+amazon\.braket\b", "import braket", code)
+        # import amazon -> import braket (standalone wrong import)
+        code = re.sub(r"\bimport\s+amazon\b", "import braket", code)
+        return code
+
     def _extract_metadata(self, code: str, algorithm: Optional[str]) -> Dict[str, Any]:
         """
         Extract metadata from generated code.
@@ -478,32 +512,29 @@ CRITICAL CONSTRAINTS FOR QAOA:
     def generate_direct(
         self,
         query: str,
+        system_prompt: Optional[str] = None,
         **kwargs
     ) -> Dict[str, Any]:
         """
         Generate Braket code directly from the LLM without RAG context.
-        
-        This method is useful for comparing RAG-augmented generation with
-        direct LLM generation.
-        
+
         Args:
-            query: Natural language description of desired code
-            **kwargs: Additional generation parameters
-            
-        Returns:
-            Dictionary with generated code and metadata
+            query: Natural language description of desired code (or full user message).
+            system_prompt: Optional system instructions (default: designer Modelfile prompt).
+            **kwargs: Additional generation parameters.
         """
         # Build direct prompt (no RAG context)
         prompt = self.DIRECT_PROMPT_TEMPLATE.format(query=query)
-        
+
         logger.info(f"Generating code directly (no RAG) using {self.provider}/{self.model}")
-        
+
         try:
+            system_text = system_prompt if system_prompt is not None else DESIGNER_SYSTEM
             if self.provider == "openai":
                 response = self.client.chat.completions.create(
                     model=self.model,
                     messages=[
-                        {"role": "system", "content": "You are an expert Amazon Braket quantum computing programmer."},
+                        {"role": "system", "content": system_text},
                         {"role": "user", "content": prompt}
                     ],
                     temperature=self.temperature,
@@ -522,6 +553,17 @@ CRITICAL CONSTRAINTS FOR QAOA:
                     **kwargs
                 )
                 generated_text = response.content[0].text
+            elif self.provider == "aws":
+                response = self.client.converse(
+                    modelId=self.model,
+                    messages=[{"role": "user", "content": [{"text": prompt}]}],
+                    system=[{"text": system_text}],
+                    inferenceConfig={
+                        "maxTokens": self.max_tokens,
+                        "temperature": self.temperature,
+                    },
+                )
+                generated_text = response["output"]["message"]["content"][0]["text"]
             else:  # ollama
                 url = f"{self.ollama_base_url.rstrip('/')}/api/chat"
                 payload = {
@@ -543,7 +585,8 @@ CRITICAL CONSTRAINTS FOR QAOA:
             
             # Extract code from response (handles both JSON and raw formats)
             code, description = self._extract_code_from_response(generated_text)
-            
+            code = self._normalize_braket_imports(code)
+
             # Extract metadata
             metadata = self._extract_metadata(code, None)
             
