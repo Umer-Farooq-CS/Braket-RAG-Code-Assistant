@@ -16,6 +16,8 @@ from ..rag.retriever import Retriever
 from ..tools.analyzer import CircuitAnalyzer
 from ..braket_rag_code_assistant.config import get_config
 from ..braket_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.bedrock_client import get_bedrock_runtime_client
+from ..agent_prompts import EDUCATIONAL_SYSTEM
 
 try:
     from openai import OpenAI
@@ -241,16 +243,24 @@ For each operation, show the full state transformation:
         if self.provider == "ollama":
             self.ollama_base_url = os.getenv("OLLAMA_HOST", "http://localhost:11434")
             self.client = None
+            self._bedrock_client = None
+        elif self.provider == "aws":
+            self.ollama_base_url = None
+            self.client = None
+            self._bedrock_client = get_bedrock_runtime_client(read_timeout=180)
         elif self.provider == "openai":
             if not OPENAI_AVAILABLE:
                 raise ImportError("OpenAI library required for OpenAI provider")
             self.client = OpenAI()
+            self._bedrock_client = None
         elif self.provider == "anthropic":
             if not ANTHROPIC_AVAILABLE:
                 raise ImportError("Anthropic library required for Anthropic provider")
             self.client = anthropic.Anthropic()
+            self._bedrock_client = None
         else:
             logger.warning(f"Unknown provider {self.provider}, defaulting to placeholder generation.")
+            self._bedrock_client = None
 
     def execute(self, task: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -351,7 +361,17 @@ For each operation, show the full state transformation:
             resp = requests.post(url, json=payload, timeout=180)
             resp.raise_for_status()
             return resp.json().get("response", "")
-            
+        elif self.provider == "aws":
+            response = self._bedrock_client.converse(
+                modelId=self.model,
+                messages=[{"role": "user", "content": [{"text": prompt}]}],
+                system=[{"text": EDUCATIONAL_SYSTEM}],
+                inferenceConfig={
+                    "maxTokens": self.max_tokens,
+                    "temperature": self.temperature,
+                },
+            )
+            return response["output"]["message"]["content"][0]["text"]
         elif self.provider == "openai":
             response = self.client.chat.completions.create(
                 model=self.model,

@@ -1,5 +1,7 @@
 # Installation Guide
 
+This guide covers **Windows**, **Linux**, and **macOS**. Commands are shown for all platforms where they differ.
+
 ## 🚀 Quick Start
 
 The fastest way to get started with Braket-RAG-Code-Assistant is to install it using pip:
@@ -8,42 +10,45 @@ The fastest way to get started with Braket-RAG-Code-Assistant is to install it u
 pip install braket-rag-code-assistant
 ```
 
+(On Windows you can use the same command in Command Prompt or PowerShell.)
+
 ## 📋 Prerequisites
 
 ### System Requirements
-- **Operating System**: Linux Ubuntu 20.04+ (recommended)
+- **Operating System**: Windows 10/11, Linux (Ubuntu 20.04+), or macOS 10.15+
 - **Python**: 3.11 or higher
 - **Memory**: 8GB RAM minimum, 16GB recommended
 - **Storage**: 10GB free space
 - **CPU**: Multi-core processor recommended
-- **GPU**: NVIDIA GPU with CUDA support (for PyTorch CUDA optimization)
+- **GPU**: NVIDIA GPU with CUDA support (optional; for PyTorch CUDA on Windows/Linux)
 
 ### Python Installation
 If you don't have Python 3.11+ installed:
 
-#### Linux Ubuntu
+#### Windows
+- Download the installer from [python.org/downloads](https://www.python.org/downloads/) and run it. Check **"Add Python to PATH"**.
+- Or use the Microsoft Store: search for "Python 3.11" and install.
+
+#### Linux (Ubuntu)
 ```bash
 sudo apt update
 sudo apt install python3.11 python3.11-venv python3.11-pip
 ```
 
-### GPU Setup (Optional but Recommended)
-For PyTorch CUDA optimization:
-
-#### Install NVIDIA Drivers
+#### macOS
 ```bash
-# Check if NVIDIA GPU is available
-nvidia-smi
-
-# Install NVIDIA drivers (if not already installed)
-sudo apt update
-sudo apt install nvidia-driver-525
+# Using Homebrew (install from https://brew.sh if needed)
+brew install python@3.11
 ```
 
-#### Install PyTorch with CUDA
+### GPU Setup (Optional, Windows & Linux)
+For PyTorch CUDA optimization (NVIDIA GPU):
+
+- **Windows**: Install [NVIDIA drivers](https://www.nvidia.com/Download/index.aspx) and [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) if needed. Check GPU with `nvidia-smi` in Command Prompt or PowerShell.
+- **Linux**: Install NVIDIA drivers (e.g. `sudo apt install nvidia-driver-525`), then check with `nvidia-smi`.
+
+#### Install PyTorch with CUDA (Windows & Linux)
 ```bash
-# PyTorch comes with CUDA libraries, so separate CUDA installation may not be required
-# Install PyTorch with CUDA support (choose based on your CUDA version)
 # Check your CUDA version: nvidia-smi
 
 # For CUDA 11.8:
@@ -55,6 +60,8 @@ pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
 # Verify installation:
 python -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA available: {torch.cuda.is_available()}')"
 ```
+
+On **macOS** or if you don't need GPU, use the default pip install (CPU-only PyTorch is fine).
 
 ## 🔧 Installation Methods
 
@@ -105,14 +112,17 @@ pip install braket-rag-code-assistant
 
 If you prefer Poetry for dependency management:
 
-```bash
-# Install Poetry
-curl -sSL https://install.python-poetry.org | python3 -
-
-# Install dependencies
+**Windows (PowerShell):**
+```powershell
+(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | python -
 poetry install
+poetry shell
+```
 
-# Activate environment
+**Linux/macOS:**
+```bash
+curl -sSL https://install.python-poetry.org | python3 -
+poetry install
 poetry shell
 ```
 
@@ -265,25 +275,23 @@ cache:
 
 ## 🤖 Ollama Setup
 
-This project uses Ollama for local LLM inference. You must install Ollama and create the custom agent models.
+This project can use Ollama for local LLM inference (optional if you use AWS Bedrock). If using Ollama, install it and create the custom agent models.
 
 ### Install Ollama
 
-**Windows/Mac/Linux:**
-Download from [ollama.ai](https://ollama.ai) or use:
-
-```bash
-# Linux
-curl -fsSL https://ollama.ai/install.sh | sh
-
-# Start Ollama service
-ollama serve
-```
+- **Windows**: Download the installer from [ollama.ai](https://ollama.ai) and run it. Ollama runs in the background; no separate `ollama serve` needed.
+- **macOS**: Download from [ollama.ai](https://ollama.ai) or run `brew install ollama` and start the app.
+- **Linux**: Download from [ollama.ai](https://ollama.ai) or run:
+  ```bash
+  curl -fsSL https://ollama.ai/install.sh | sh
+  ollama serve
+  ```
 
 ### Pull Base Models
 
+Same on all platforms (run in Command Prompt, PowerShell, or terminal):
+
 ```bash
-# Pull the base models used by our agents
 ollama pull qwen2.5-coder:14b-instruct-q4_K_M
 ollama pull llama3.1:8b-instruct-q5_K_M
 ```
@@ -292,41 +300,62 @@ ollama pull llama3.1:8b-instruct-q5_K_M
 
 From the project root directory:
 
+**Windows (Command Prompt or PowerShell):**
+```cmd
+cd config\ollama
+ollama create braket-designer-agent -f designer_agent.Modelfile
+ollama create braket-edu-agent -f educational_agent.Modelfile
+cd ..\..
+```
+
+**Linux/macOS:**
 ```bash
-# Create Designer Agent (code generation)
 cd config/ollama
 ollama create braket-designer-agent -f designer_agent.Modelfile
-
-# Create Educational Agent (explanations)
 ollama create braket-edu-agent -f educational_agent.Modelfile
-
-# Return to project root
 cd ../..
 ```
 
 ### Verify Agent Models
 
 ```bash
-# List all models
 ollama list
-
-# Test Designer Agent
 ollama run braket-designer-agent "Create a Bell state circuit"
-
-# Test Educational Agent  
 ollama run braket-edu-agent "Explain superposition simply"
 ```
 
 ### Remove/Recreate Agent Models
 
-```bash
-# Remove an agent
-ollama rm braket-designer-agent
+**Windows:** `cd config\ollama` then run the `ollama rm` / `ollama create` commands below.  
+**Linux/macOS:** `cd config/ollama` then:
 
-# Recreate after modifying Modelfile
-cd config/ollama
+```bash
+ollama rm braket-designer-agent
 ollama create braket-designer-agent -f designer_agent.Modelfile
 ```
+
+## AWS Bedrock (optional)
+
+You can use **AWS Bedrock** (Amazon Nova models) instead of Ollama for all agents and for RAG embeddings. This uses the same config and code; only credentials and provider settings change.
+
+### 1. Credentials and env
+
+1. Copy `.env.example` to `.env` in the project root. **On Windows:** use the same format in `.env` (no `set` prefix); the app loads it automatically. You can run `powershell -File scripts\set_aws_env.ps1 -CreateEnv` to create `.env` from the example.
+2. Set `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_DEFAULT_REGION` (e.g. `us-east-1`) in `.env`. Never commit `.env`.
+3. Install dependencies: `pip install boto3` (included in `requirements.txt`).
+
+### 2. Config
+
+In `config/config.json`, the `aws` section and agent `model.provider` values can be set to use AWS. Defaults in config may already point to Nova model IDs and `provider: "aws"`. Each agent’s `model.provider` can be `"aws"` or `"ollama"` independently.
+
+### 3. Re-build vector index when using AWS embeddings
+
+If you set **RAG embeddings** to AWS (`models.embedding.provider` = `"aws"`), the embedding model and dimension (e.g. 1024) differ from the local sentence-transformers setup (e.g. 768). You **must re-build the vector index** after switching:
+
+1. Remove or rename the existing vector index (e.g. delete or move the `data/models/vector_index` directory).
+2. Run your usual flow that loads the knowledge base and builds the index (e.g. CLI init, or the notebooks that create the FAISS index from the knowledge base). The new index will use the AWS embedding dimension.
+
+If you switch back to local embeddings, remove the index again and re-build so the dimension matches the local model.
 
 ## 🚀 First Run
 
@@ -438,33 +467,41 @@ ERROR: Permission denied
 
 #### Check Installation
 ```bash
-# Verify Python version
 python --version
-
-# Check installed packages
-pip list | grep braket-rag
-
-# Test import
 python -c "import braket_rag_code_assistant; print('OK')"
 ```
 
+**Check if the package is installed:**  
+- **Windows (PowerShell):** `pip list | Select-String braket`  
+- **Linux/macOS:** `pip list | grep braket`
+
 #### Debug Mode
+
+**Windows (Command Prompt):**
+```cmd
+set BRAKET_RAG_DEBUG=true
+set BRAKET_RAG_LOG_LEVEL=DEBUG
+braket-rag --verbose generate "test"
+```
+
+**Windows (PowerShell):**
+```powershell
+$env:BRAKET_RAG_DEBUG="true"; $env:BRAKET_RAG_LOG_LEVEL="DEBUG"
+braket-rag --verbose generate "test"
+```
+
+**Linux/macOS:**
 ```bash
-# Enable debug logging
 export BRAKET_RAG_DEBUG=true
 export BRAKET_RAG_LOG_LEVEL=DEBUG
-
-# Run with verbose output
 braket-rag --verbose generate "test"
 ```
 
 #### Log Files
 Check log files for detailed error information:
-```bash
-# View logs
-tail -f logs/app.log
-tail -f logs/error.log
-```
+
+**Windows (PowerShell):** `Get-Content logs\app.log -Wait`  
+**Linux/macOS:** `tail -f logs/app.log`
 
 ## 📚 Next Steps
 
@@ -489,12 +526,12 @@ pip install -e .
 
 ### Uninstall
 ```bash
-# Remove package
 pip uninstall braket-rag-code-assistant
-
-# Remove virtual environment
-rm -rf braket-rag-env
 ```
+
+**Remove virtual environment:**  
+- **Windows:** delete the folder `braket-rag-env` or run `rmdir /s braket-rag-env` in Command Prompt.  
+- **Linux/macOS:** `rm -rf braket-rag-env`
 
 ---
 

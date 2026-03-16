@@ -20,6 +20,14 @@ _config_dir = Path(__file__).parent
 _project_root = _config_dir.parent
 sys.path.insert(0, str(_project_root))
 
+# Load .env early so AWS_* and other vars are set before any code uses them
+try:
+    from dotenv import load_dotenv
+    _env_path = _project_root / ".env"
+    load_dotenv(_env_path)
+except ImportError:
+    pass
+
 try:
     from src.braket_rag_code_assistant.config.logging import get_logger
     logger_available = True
@@ -108,6 +116,10 @@ class ConfigLoader:
         if os.getenv("LOG_LEVEL"):
             self.config["logging"]["log_level"] = os.getenv("LOG_LEVEL")
 
+        # AWS (region from env; credentials come from env / .env only, never from config)
+        if os.getenv("AWS_DEFAULT_REGION"):
+            self.config.setdefault("aws", {})["region"] = os.getenv("AWS_DEFAULT_REGION")
+
         # Models (LLM)
         if os.getenv("LLM_PROVIDER"):
             self.config.setdefault("models", {}).setdefault("llm", {})["provider"] = os.getenv("LLM_PROVIDER")
@@ -122,6 +134,17 @@ class ConfigLoader:
                 "version": "0.1.0",
                 "debug": False,
                 "environment": "development"
+            },
+            "aws": {
+                "region": "us-east-1",
+                "models": {
+                    "validator": "us.amazon.nova-premier-v1:0",
+                    "designer": "amazon.nova-pro-v1:0",
+                    "optimizer": "amazon.nova-pro-v1:0",
+                    "educational": "global.amazon.nova-2-lite-v1:0",
+                    "embeddings": "amazon.nova-2-multimodal-embeddings-v1:0"
+                },
+                "embeddings": {"embedding_dimension": 1024}
             },
             "models": {
                 "embedding": {

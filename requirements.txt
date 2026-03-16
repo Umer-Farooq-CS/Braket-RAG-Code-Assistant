@@ -58,6 +58,10 @@ pyyaml>=6.0.1
 toml>=0.10.2
 # configparser is part of Python's standard library, no need to install
 
+# AWS Bedrock (Nova models and embeddings)
+# ========================================
+boto3>=1.28.0
+
 # Scientific Computing & Optimization
 # ===================================
 scikit-learn>=1.3.0
@@ -75,6 +79,7 @@ seaborn>=0.12.0
 # Logging (minimal for development)
 # ================================
 loguru>=0.7.2
+structlog>=23.0.0
 
 # Testing & Quality Assurance
 # ===========================

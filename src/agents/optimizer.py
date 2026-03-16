@@ -11,6 +11,8 @@ Author: Umer Farooq, Hussain Waseem Syed, Muhammad Irtaza Khan
 Email: umerfarooqcs0891@gmail.com
 """
 
+from __future__ import annotations
+
 from typing import Dict, Any, Optional, List
 
 try:
@@ -26,6 +28,7 @@ from ..rag.generator import Generator
 from ..rag.retriever import Retriever
 from ..braket_rag_code_assistant.config import get_config
 from ..braket_rag_code_assistant.config.logging import get_logger
+from ..agent_prompts import OPTIMIZER_SYSTEM
 
 logger = get_logger(__name__)
 
@@ -234,7 +237,7 @@ Instructions:
 Fixed code:"""
                     
                     try:
-                        fix_result = self.generator.generate_direct(query=fix_prompt)
+                        fix_result = self.generator.generate_direct(query=fix_prompt, system_prompt=OPTIMIZER_SYSTEM)
                         fixed_code = fix_result.get("code", "")
                         
                         if fixed_code:
@@ -343,7 +346,7 @@ Instructions:
 """
         
         try:
-            result = self.generator.generate_direct(query=prompt)
+            result = self.generator.generate_direct(query=prompt, system_prompt=OPTIMIZER_SYSTEM)
             return {
                 "success": True,
                 "code": result["code"],

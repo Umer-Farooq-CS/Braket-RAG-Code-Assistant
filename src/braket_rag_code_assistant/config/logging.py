@@ -5,7 +5,12 @@ import sys
 from pathlib import Path
 from typing import Optional
 from loguru import logger
-import structlog
+
+try:
+    import structlog
+    STRUCTLOG_AVAILABLE = True
+except ImportError:
+    STRUCTLOG_AVAILABLE = False
 
 
 class LoggingConfig:
@@ -82,7 +87,9 @@ class LoggingConfig:
             )
     
     def setup_structlog(self) -> None:
-        """Setup Structlog configuration."""
+        """Setup Structlog configuration (skipped if structlog not installed)."""
+        if not STRUCTLOG_AVAILABLE:
+            return
         structlog.configure(
             processors=[
                 structlog.stdlib.filter_by_level,

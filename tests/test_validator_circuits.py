@@ -348,12 +348,14 @@ def run_tests(validator_agent):
             
             success = result.get("success", False)
             fixed_code = result.get("fixed_code", None)
+            validation_attempts = result.get("validation_attempts", 1)
+            used_fix_retry = validation_attempts > 1
             
             status = "UNKNOWN"
             if test["expected_status"] == "PASS":
                 status = "PASS" if success else "FAIL"
             else:
-                if not success and fixed_code:
+                if (not success and fixed_code) or (success and used_fix_retry):
                     status = "PASS (Fixed)"
                 elif not success:
                     status = "PASS (Detected)"
@@ -369,6 +371,7 @@ def run_tests(validator_agent):
                 "Expected": test["expected_status"],
                 "Actual_Success": success,
                 "Has_Fix": bool(fixed_code),
+                "Validation_Attempts": validation_attempts,
                 "Status": status,
                 "Error_Msg": result.get("error", "")[:50] + "..." if result.get("error") else ""
             })

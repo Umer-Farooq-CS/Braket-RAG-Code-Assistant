@@ -5,8 +5,23 @@
     "debug": false,
     "environment": "development"
   },
+  "aws": {
+    "region": "us-east-1",
+    "models": {
+      "validator": "us.amazon.nova-premier-v1:0",
+      "designer": "amazon.nova-pro-v1:0",
+      "optimizer": "amazon.nova-pro-v1:0",
+      "educational": "global.amazon.nova-2-lite-v1:0",
+      "embeddings": "amazon.nova-2-multimodal-embeddings-v1:0"
+    },
+    "embeddings": {
+      "embedding_dimension": 1024,
+      "request_delay_seconds": 5.0
+    }
+  },
   "models": {
     "embedding": {
+      "provider": "aws",
       "model_name": "BAAI/bge-base-en-v1.5",
       "embedding_dimension": 768,
       "device": "auto",
@@ -46,8 +61,8 @@
       "enabled": true,
       "use_rag": true,
       "model": {
-        "provider": "ollama",
-        "model": "braket-designer-agent"
+        "provider": "aws",
+        "model": "amazon.nova-pro-v1:0"
       }
     },
     "optimizer": {
@@ -61,8 +76,8 @@
       },
       "rl_iterations": 10,
       "model": {
-        "provider": "ollama",
-        "model": "braket-optimizer-agent",
+        "provider": "aws",
+        "model": "amazon.nova-pro-v1:0",
         "temperature": 0.2,
         "max_tokens": 2000
       }
@@ -75,8 +90,8 @@
       "default_shots": 1024,
       "default_backend": "braket",
       "model": {
-        "provider": "ollama",
-        "model": "braket-validator-agent"
+        "provider": "aws",
+        "model": "us.amazon.nova-premier-v1:0"
       }
     },
     "qcanvas": {
@@ -86,8 +101,8 @@
     "educational": {
       "enabled": true,
       "model": {
-        "provider": "ollama",
-        "model": "braket-edu-agent"
+        "provider": "aws",
+        "model": "global.amazon.nova-2-lite-v1:0"
       }
     }
   },

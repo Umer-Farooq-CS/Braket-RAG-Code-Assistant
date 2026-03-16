@@ -16,6 +16,7 @@ Email: umerfarooqcs0891@gmail.com
 """
 
 import re
+import time
 import requests
 from typing import Dict, Any, Optional, List
 from .base_agent import BaseAgent
@@ -26,6 +27,8 @@ from ..tools.qcanvas_client import QCanvasClient
 from ..rag.retriever import Retriever
 from ..braket_rag_code_assistant.config import get_config
 from ..braket_rag_code_assistant.config.logging import get_logger
+from ..braket_rag_code_assistant.bedrock_client import get_bedrock_runtime_client
+from ..agent_prompts import VALIDATOR_SYSTEM
 
 logger = get_logger(__name__)
 
@@ -75,9 +78,22 @@ class ValidatorAgent(BaseAgent):
         self.llm_enabled = config.get("agents.validator.llm_enabled", True)
         self.default_shots = config.get("agents.validator.default_shots", 1024)
         self.default_backend = config.get("agents.validator.default_backend", "braket")
-        self.ollama_model = ollama_model or config.get("agents.validator.model.model", "braket-validator-agent")
+        val_model_cfg = config.get("agents", {}).get("validator", {}).get("model", {})
+        self.llm_provider = (val_model_cfg.get("provider") or "ollama").lower()
+        self.llm_model = ollama_model or val_model_cfg.get("model", "braket-validator-agent")
+        self.ollama_model = self.llm_model
         self.ollama_url = config.get("models.ollama_url", "http://localhost:11434")
-        
+        if self.llm_provider == "aws":
+            try:
+                self._bedrock_client = get_bedrock_runtime_client(read_timeout=60)
+            except ImportError as e:
+                logger.warning(
+                    f"AWS Bedrock client unavailable ({e}). Disabling AWS LLM for ValidatorAgent."
+                )
+                self._bedrock_client = None
+                self.llm_enabled = False
+        else:
+            self._bedrock_client = None
         self.semantic_tolerance_percent = 15
         
         if self.mode == "local":
@@ -150,7 +166,7 @@ class ValidatorAgent(BaseAgent):
                 if result.get("fixed_code") or result.get("llm_analysis", {}).get("fixed_code"):
                     fixed_code = result.get("fixed_code") or result["llm_analysis"]["fixed_code"]
                     logger.info(f"Using LLM-fixed code for retry...")
-                    current_code = fixed_code
+                    current_code = self._normalize_code_for_runtime(fixed_code)
                 else:
                     logger.warning(f"No LLM fix available, retrying with same code...")
             else:
@@ -167,6 +183,21 @@ class ValidatorAgent(BaseAgent):
         if result.get("results") and result["results"].get("counts"):
             return result["results"]["counts"]
         return None
+
+    def _has_measurement_operations(self, circuit: Any) -> bool:
+        """Return True if circuit contains at least one measurement operation."""
+        try:
+            for instruction in getattr(circuit, "instructions", []):
+                operator = getattr(instruction, "operator", None)
+                op_name = (
+                    getattr(operator, "name", "") or
+                    getattr(getattr(operator, "__class__", None), "__name__", "")
+                )
+                if "measure" in str(op_name).lower():
+                    return True
+        except Exception:
+            return False
+        return False
     
     def _validate_semantics(
         self,
@@ -367,6 +398,7 @@ class ValidatorAgent(BaseAgent):
         """Execute validation using local compiler/simulator."""
         code = task.get("code", "")
         validation_level = task.get("validation_level", "comprehensive")
+        require_measurements = task.get("require_measurements", validation_level == "comprehensive")
         
         if not code:
             return {
@@ -378,13 +410,23 @@ class ValidatorAgent(BaseAgent):
             compilation = self.compiler.compile(code, execute=True)
             
             if not compilation["success"]:
+                first_err = (
+                    compilation.get("errors", ["Compilation failed"])[0]
+                    if compilation.get("errors")
+                    else "Compilation failed"
+                )
+                err_str = (
+                    first_err.get("message", str(first_err))
+                    if isinstance(first_err, dict)
+                    else first_err
+                )
                 result = {
                     "success": False,
                     "validation_passed": False,
                     "stage": "compilation",
                     "errors": compilation["errors"],
                     "compilation": compilation,
-                    "error": compilation.get("errors", ["Compilation failed"])[0] if compilation.get("errors") else "Compilation failed",
+                    "error": err_str,
                 }
                 
                 if self.llm_enabled:
@@ -426,6 +468,40 @@ class ValidatorAgent(BaseAgent):
             
             circuit_validation = self.compiler.validate_circuit(circuit)
             analysis = self.analyzer.analyze(circuit)
+            has_measurements = self._has_measurement_operations(circuit)
+
+            if require_measurements and not has_measurements:
+                result = {
+                    "success": False,
+                    "validation_passed": False,
+                    "stage": "circuit_validation",
+                    "compilation": compilation,
+                    "circuit_validation": circuit_validation,
+                    "analysis": analysis,
+                    "simulation": None,
+                    "results": {
+                        "counts": {},
+                        "probs": None,
+                    },
+                    "errors": compilation.get("errors", []) + circuit_validation.get("errors", []),
+                    "error": "Circuit has no measurement operations",
+                }
+                result["errors"].append("Circuit has no measurement operations")
+
+                if self.llm_enabled:
+                    description = task.get("description", "")
+                    exec_result = {
+                        "success": False,
+                        "stage": result["stage"],
+                        "error": result.get("error"),
+                        "results": result.get("results"),
+                    }
+                    logger.info("Running LLM analysis for missing measurement fixing...")
+                    llm_result = self.fix_code_with_llm(code, description, exec_result)
+                    result["llm_analysis"] = llm_result
+                    result["fixed_code"] = llm_result.get("fixed_code")
+
+                return result
             
             simulation_result = None
             simulation_success = True
@@ -522,7 +598,7 @@ class ValidatorAgent(BaseAgent):
         prompt = self._format_llm_prompt(code, description, exec_result)
         
         try:
-            response = self._call_ollama(prompt)
+            response = self._call_llm(prompt)
             return self._parse_llm_response(response)
         except Exception as e:
             logger.error(f"LLM fix_code error: {e}")
@@ -540,10 +616,16 @@ class ValidatorAgent(BaseAgent):
         exec_result: Dict[str, Any]
     ) -> str:
         """Format prompt for the Validator LLM."""
+        raw_error = exec_result.get("error", "")
+        error_str = (
+            raw_error.get("message", str(raw_error))
+            if isinstance(raw_error, dict)
+            else (raw_error if isinstance(raw_error, str) else str(raw_error))
+        )
         error_info = ""
-        if exec_result.get("error"):
-            error_info = f"\n\n**ERROR:**\n{exec_result['error']}"
-        
+        if error_str:
+            error_info = f"\n\n**ERROR:**\n{error_str}"
+
         results_info = ""
         if exec_result.get("results"):
             results = exec_result["results"]
@@ -552,10 +634,9 @@ class ValidatorAgent(BaseAgent):
             results_info = f"\n\n**SIMULATION RESULTS:**\nCounts: {counts}\nProbabilities: {probs}"
         
         stage = exec_result.get("stage", "unknown")
-        error = exec_result.get("error", "")
         circuit_detection_guidance = ""
-        
-        if "circuit" in error.lower() and ("not found" in error.lower() or "detection" in error.lower()):
+
+        if "circuit" in error_str.lower() and ("not found" in error_str.lower() or "detection" in error_str.lower()):
             circuit_detection_guidance = """
 
 **CRITICAL FIXING INSTRUCTIONS FOR CIRCUIT DETECTION ERROR:**
@@ -587,6 +668,13 @@ circuit = create_circuit()
 - Build QAOA manually using circuit.zz(q1, q2, angle) for problem Hamiltonian
 - Use circuit.rx(qubit, angle) for mixer Hamiltonian
 """
+
+        braket_api_guidance = """
+
+**BRAKET API COMPATIBILITY NOTES (IMPORTANT):**
+- Prefer classical sampling via `circuit.measure(<qubit>)` and `device.run(..., shots=...)` over probability result-types.
+- If you use probability result-types, the kwarg should be `targets=[...]` (NOT `target_qubits=...`).
+"""
         
         prompt = f"""**ORIGINAL BRAKET CODE:**
 ```python
@@ -597,7 +685,7 @@ circuit = create_circuit()
 {description or "Not specified"}
 
 **EXECUTION STAGE:** {stage}
-**SUCCESS:** {exec_result.get("success", False)}{error_info}{results_info}{circuit_detection_guidance}{qaoa_guidance}
+**SUCCESS:** {exec_result.get("success", False)}{error_info}{results_info}{circuit_detection_guidance}{qaoa_guidance}{braket_api_guidance}
 
 Please analyze this code and its execution results. If there are issues, provide a fixed version of the code that:
 1. Fixes all compilation and execution errors
@@ -609,6 +697,41 @@ Return the fixed code in a markdown code block."""
         
         return prompt
     
+    def _call_llm(self, prompt: str) -> str:
+        """Call the configured LLM (Ollama or AWS Bedrock) with the validator model."""
+        if self.llm_provider == "aws":
+            return self._call_bedrock(prompt)
+        return self._call_ollama(prompt)
+
+    def _call_bedrock(self, prompt: str, max_retries: int = 5) -> str:
+        """Call AWS Bedrock Converse API with the validator model. Retries on throttle with backoff."""
+        last_error = None
+        for attempt in range(max_retries):
+            try:
+                response = self._bedrock_client.converse(
+                    modelId=self.llm_model,
+                    messages=[{"role": "user", "content": [{"text": prompt}]}],
+                    system=[{"text": VALIDATOR_SYSTEM}],
+                    inferenceConfig={"maxTokens": 2048, "temperature": 0.2},
+                )
+                return response["output"]["message"]["content"][0]["text"]
+            except Exception as e:
+                last_error = e
+                err_code = None
+                if hasattr(e, "response") and isinstance(getattr(e, "response", None), dict):
+                    err_code = e.response.get("Error", {}).get("Code")
+                is_throttle = err_code == "ThrottlingException" or "Throttling" in type(e).__name__
+                if is_throttle and attempt < max_retries - 1:
+                    wait = 15 * (attempt + 1)
+                    logger.warning(
+                        "Bedrock throttled, waiting %ds before retry (%d/%d)",
+                        wait, attempt + 1, max_retries,
+                    )
+                    time.sleep(wait)
+                else:
+                    raise
+        raise last_error
+
     def _call_ollama(self, prompt: str) -> str:
         """Call Ollama API with the validator model."""
         try:
@@ -646,7 +769,7 @@ Return the fixed code in a markdown code block."""
         code_match = re.search(code_pattern, response, re.DOTALL)
         
         if code_match:
-            result["fixed_code"] = code_match.group(1).strip()
+            result["fixed_code"] = self._normalize_code_for_runtime(code_match.group(1).strip())
             
             code_end = code_match.end()
             analysis = response[code_end:].strip()
@@ -657,6 +780,20 @@ Return the fixed code in a markdown code block."""
             result["success"] = False
         
         return result
+
+    def _normalize_code_for_runtime(self, code: str) -> str:
+        """
+        Normalize common Braket API mismatches in generated code.
+
+        The validator runs code via `exec()`. If the LLM generates code against a different
+        Braket SDK version, runtime errors can prevent validation.
+        """
+        if not code:
+            return code
+        # Braket probability APIs use `targets=...` (some models output `target_qubits=...`).
+        code = re.sub(r"\btarget_qubits\s*=", "targets=", code)
+        code = re.sub(r"\btarget_qubit\s*=", "targets=", code)
+        return code
     
     def check_backend_health(self) -> bool:
         """Check if QCanvas backend is available (remote mode only)."""

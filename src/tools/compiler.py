@@ -206,17 +206,14 @@ class BraketCompiler:
         namespace = {}
         if BRAKET_AVAILABLE:
             import braket
-            from braket.circuits import Circuit as BraketCircuit, gates as braket_gates
-            from braket.devices import LocalSimulator as BraketLocalSimulator
             namespace["braket"] = braket
-            namespace["Circuit"] = BraketCircuit
-            namespace["gates"] = braket_gates
-            namespace["LocalSimulator"] = BraketLocalSimulator
             try:
                 import numpy as np
                 namespace["np"] = np
             except ImportError:
                 pass
+            # Do not pre-inject Circuit, gates, or LocalSimulator so that code without
+            # the corresponding imports fails (e.g. "Missing Import" is detected).
         
         try:
             exec(code, namespace)

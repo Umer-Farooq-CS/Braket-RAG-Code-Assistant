@@ -69,9 +69,25 @@ The following environment variables can override config values:
 - `HUGGINGFACE_API_KEY` - Hugging Face API key
 - `ANTHROPIC_API_KEY` - Anthropic API key
 - `OLLAMA_HOST` - Ollama server URL (default: `http://localhost:11434`)
+- `AWS_ACCESS_KEY_ID` - AWS access key (when using provider `aws`)
+- `AWS_SECRET_ACCESS_KEY` - AWS secret key (when using provider `aws`)
+- `AWS_DEFAULT_REGION` - AWS region (e.g. `us-east-1`); also sets `config.aws.region`
 - `ENVIRONMENT` - Environment name (development, production)
 - `DEBUG` - Debug mode (true/false)
 - `LOG_LEVEL` - Logging level
+
+Copy `.env.example` to `.env` in the project root and set AWS credentials there if using AWS Bedrock. Never commit `.env`. On Windows, use the same `.env` format (no `set`); the app loads it automatically. You can run `powershell -File scripts\set_aws_env.ps1 -CreateEnv` to create `.env` from the example.
+
+## AWS Bedrock and Vector Index Re-build
+
+When using **AWS** for embeddings (`models.embedding.provider` = `"aws"`), the RAG system uses Amazon Nova Multimodal Embeddings. The embedding dimension (e.g. 1024) and model differ from the local sentence-transformers setup (e.g. 768). You **must re-build the vector index** after switching to AWS embeddings (or when switching back to local), otherwise the index dimension will not match the model.
+
+1. Ensure `.env` has valid `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, and `AWS_DEFAULT_REGION`.
+2. Set `config.json` → `models.embedding.provider` to `"aws"` (and optionally adjust `aws.embeddings.embedding_dimension`).
+3. Delete or rename the existing vector index directory (e.g. `data/models/vector_index`) so it is recreated.
+4. Run the pipeline that builds the knowledge base and vector index (e.g. from CLI or notebooks: load knowledge base, build index, then run generation). The index will be built with the new dimension.
+
+If you switch back to local embeddings (`provider` = `"local"` or omit it), repeat: remove the index and re-build so the dimension matches the local model (e.g. 768).
 
 ## Setup
 
