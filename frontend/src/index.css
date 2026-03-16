@@ -1,0 +1,225 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Import Geist font */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Design System — All colors MUST be HSL */
+
+@layer base {
+  :root {
+    /* Light Mode */
+    --background: 220 20% 97%;
+    --foreground: 224 71% 4%;
+
+    --surface: 0 0% 100%;
+    --surface-foreground: 224 71% 4%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 224 71% 4%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 224 71% 4%;
+
+    --primary: 271 91% 65%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 92%;
+    --secondary-foreground: 224 71% 4%;
+
+    --muted: 220 14% 92%;
+    --muted-foreground: 220 8% 50%;
+
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 271 91% 65%;
+
+    --radius: 0.75rem;
+
+    /* App-specific */
+    --glass-bg: 0 0% 100% / 0.7;
+    --glass-border: 0 0% 100% / 0.5;
+    --code-bg: 224 71% 4%;
+    --agent-purple: 271 91% 65%;
+    --agent-blue: 217 91% 60%;
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 100%;
+
+    --sidebar-background: 220 20% 94%;
+    --sidebar-foreground: 224 71% 4%;
+    --sidebar-primary: 271 91% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 220 14% 88%;
+    --sidebar-accent-foreground: 224 71% 4%;
+    --sidebar-border: 220 13% 88%;
+    --sidebar-ring: 271 91% 65%;
+  }
+
+  .dark {
+    --background: 222 47% 1%;
+    --foreground: 210 40% 96%;
+
+    --surface: 222 47% 4%;
+    --surface-foreground: 210 40% 96%;
+
+    --card: 222 47% 4%;
+    --card-foreground: 210 40% 96%;
+
+    --popover: 222 47% 6%;
+    --popover-foreground: 210 40% 96%;
+
+    --primary: 271 91% 65%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 222 30% 10%;
+    --secondary-foreground: 210 40% 90%;
+
+    --muted: 222 30% 8%;
+    --muted-foreground: 217 20% 55%;
+
+    --accent: 217 91% 60%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62% 45%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 222 30% 10%;
+    --input: 222 30% 10%;
+    --ring: 271 91% 65%;
+
+    /* App-specific */
+    --glass-bg: 222 47% 6% / 0.6;
+    --glass-border: 0 0% 100% / 0.06;
+    --code-bg: 222 47% 3%;
+    --agent-purple: 271 91% 65%;
+    --agent-blue: 217 91% 60%;
+    --success: 160 84% 39%;
+    --success-foreground: 0 0% 100%;
+
+    --sidebar-background: 222 47% 2%;
+    --sidebar-foreground: 210 40% 90%;
+    --sidebar-primary: 271 91% 65%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 222 30% 8%;
+    --sidebar-accent-foreground: 210 40% 90%;
+    --sidebar-border: 222 30% 8%;
+    --sidebar-ring: 271 91% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    font-family: 'Inter', 'Geist Sans', system-ui, sans-serif;
+    font-feature-settings: "ss01", "ss02", "cv01";
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  code, pre, .font-mono {
+    font-family: 'Geist Mono', 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+    font-feature-settings: "zero", "ss01";
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    background: hsl(var(--glass-bg));
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid hsl(var(--glass-border));
+  }
+
+  .card-shadow {
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.05), 0 4px 6px -1px rgba(0,0,0,0.2);
+  }
+
+  .card-shadow-hover {
+    box-shadow: 0 0 0 1px rgba(147,51,234,0.3), 0 10px 15px -3px rgba(0,0,0,0.4);
+  }
+
+  .input-glow {
+    box-shadow: 0 0 0 2px rgba(147,51,234,0.4), 0 0 20px rgba(147,51,234,0.1);
+  }
+
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(271, 91%, 65%) 0%, hsl(217, 91%, 60%) 100%);
+  }
+
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(271, 91%, 65%) 0%, hsl(217, 91%, 60%) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .agent-pulse-border {
+    position: relative;
+  }
+
+  .agent-pulse-border::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    background: conic-gradient(from 0deg, hsl(271,91%,65%), hsl(217,91%,60%), hsl(271,91%,65%));
+    animation: border-rotate 3s linear infinite;
+    z-index: -1;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(var(--muted));
+    border-radius: 999px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--muted-foreground));
+  }
+}
+
+@keyframes border-rotate {
+  from { transform: rotate(0deg) scale(1.01); }
+  to { transform: rotate(360deg) scale(1.01); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--secondary)) 50%, hsl(var(--muted)) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
